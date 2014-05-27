@@ -43,7 +43,6 @@ int main(int argc, char * argv[])
 	CvMemStorage* storage = cvCreateMemStorage(0);
 	CvSeq* contours;
  
-//	cvNamedWindow("img_to_preprocess");
 	cvNamedWindow("img_after_preprocess");
 
 	/*这里对原图像进行预处理，并返回一个名为img_after_preprocess的图像，这个图像为预处理后的图像*/
@@ -69,7 +68,6 @@ int main(int argc, char * argv[])
 
 	cvSaveImage("img_after_preprocess.bmp", img_after_preprocess);
 
-//	cvShowImage("img_to_preprocess", img_to_preprocess);
 
 	cvShowImage("img_after_preprocess", img_after_preprocess);
 
@@ -114,83 +112,39 @@ void preprocess_the_image(IplImage * img_to_preprocess, IplImage * img_after_pre
 
 	/*灰度化图像*/
 	gray_the_image(img_to_preprocess, gray_img);
-	//cvShowImage("gray_img", gray_img);
-#if 0 //目的是看看中值滤波在哪里比较好，这里是第一个,在灰度化后，灰度拉伸前
-	img_after_filter = cvCloneImage(gray_img);
 
-	median_filtering(img_after_filter);
-	cvShowImage("img_after_filter", img_after_filter);
-#endif
-
-//	img_after_stre = cvCloneImage(img_after_filter);
 	img_after_stre = cvCloneImage(gray_img); //为了做测试，这里仅仅是复制灰度化后的图像
-//	gray_strecth(img_after_filter, img_after_stre, 255, 0);
 
 	/*图像灰度拉伸*/
 	gray_strecth(gray_img, img_after_stre, 255, 0);
-	//cvShowImage("img_after_stre", img_after_stre);
 
-#if 1 //这里是第二个地方，在灰度拉伸后，在sobel之前
 	img_after_filter = cvCloneImage(img_after_stre);
+	/*中值滤波*/
+
 	median_filtering(img_after_filter);
-//	cvShowImage("img_after_filter", img_after_filter);
-#endif
 
-//	Sobel_dir(img_after_stre, img_after_sobel);
-//	cvCanny(img_after_stre, img_after_sobel, 50, 150, 3);
+	/*边缘检测*/
 	cvSobel(img_after_stre, img_after_sobel, 1, 0, 3);
-	//cvShowImage("img_after_sobel", img_after_sobel);
 
-	//cvThreshold(img_after_sobel, final_img, 0, 255, CV_THRESH_BINARY| CV_THRESH_OTSU);
 	final_img = binarize_the_image(img_after_sobel);
-//	img_after_preprocess = cvCloneImage(temp);
-//	median_filtering(final_img);
 
-//进行膨胀腐蚀操作, 以及轮廓检测操作
+	/*进行膨胀腐蚀操作, 以及轮廓检测操作*/
 	IplConvKernel* kernal = cvCreateStructuringElementEx(3,1, 1, 0, CV_SHAPE_RECT);
 	IplImage * erode_dilate = cvCreateImage(cvGetSize(final_img), IPL_DEPTH_8U, 1);
 
+	/*进行两侧膨胀腐蚀操作*/
 	cvDilate(final_img, erode_dilate, kernal, 5);//X方向膨胀连通数字
 	cvErode(erode_dilate, erode_dilate, kernal, 4);//X方向腐蚀去除碎片
 	cvDilate(erode_dilate, erode_dilate, kernal, 1);//X方向膨胀回复形态
+
+	/*最终图片*/
 	clone_image(erode_dilate, img_after_preprocess);
-
-	//IplImage * dst = cvCreateImage(cvGetSize(erode_dilate), 8, 3);
-	//cvNamedWindow("dst");
-#if 0
-	CvMemStorage* storage = cvCreateMemStorage(0);
-
-	IplImage* copy = cvCloneImage(erode_dilate);
-	CvSeq* contours;
-
-     cvFindContours(copy, storage, &contours, sizeof(CvContour), CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);    
-
-	 //cvZero(dst);
-	while(contours != NULL)
-	{
-//		list<struct CvRect> rects;
-//		rects.push_back(cvBoundingRect(contours));
-	//	CvScalar color = CV_RGB(255, 255, 255);
-//		cvDrawContours(dst, contours, color, color, 0, 2, CV_FILLED, cvPoint(0, 0));
-	//	cvDrawContours(copy, contours, color, color, 0, 1, 0, cvPoint(0, 0));
-
-
-		CvRect rect = cvBoundingRect( contours, 0 );
-//		cvRectangle( erode_dilate, cvPoint( rect.x, rect.y ),cvPoint( rect.x + rect.width, rect.y + rect.height ), cvScalar(0,0,0), 0 );
-		cvRectangle(erode_dilate, cvPoint(rect.x, rect.y), cvPoint(rect.x + rect.width, rect.y + rect.height),CV_RGB(255, 21, 123), 1, 8, 0);
-
-		contours= contours->h_next;
-	}
-
-//	cvShowImage("dst", dst);
-
-	//clone_image(final_img, img_after_preprocess);
-
-//	median_filtering(img_after_preprocess);
-//	show_image_value_one(img_after_preprocess);
-//	cvShowImage("img_after_preprocess", img_after_preprocess);
-#endif
 }
+
+/*进行灰度化的函数
+ 输入:彩色原始图像
+ 输出:灰度化后的图像
+ */
 
 IplImage * gray_the_image(IplImage * color_img, IplImage * gray_img)
 {
@@ -207,6 +161,10 @@ IplImage * gray_the_image(IplImage * color_img, IplImage * gray_img)
 	return gray_img;
 }
 
+/*进行灰度拉伸的函数
+ 输入:原始图像,目的图像地址,最大灰度值,最小灰度值
+ 输出:目的图像
+ */
 IplImage * gray_strecth(IplImage * src_img, IplImage* dst_img, int exp_max, int exp_min)
 {
 
