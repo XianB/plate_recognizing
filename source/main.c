@@ -11,9 +11,11 @@ int main(int argc, char *argv [])
 
 	List rects;
 
+#if 0
 	cvNamedWindow("img_car", 1);
 	cvNamedWindow("img_after_preprocess", 1);
 	cvNamedWindow("img_plate", 1);
+#endif
 
 	if ((img_car = cvLoadImage(argv[1], -1)) == NULL) {
 		fprintf(stderr, "Can not open car image file!\n");
@@ -30,8 +32,10 @@ int main(int argc, char *argv [])
 	/*读取img_after_preprocess.bmp图像*/
 	img_after_preprocess = cvLoadImage("img_after_preprocess.bmp", -1);
 
+#if 0
 	/*显示预处理完成后的图像*/
 	cvShowImage("img_after_preprocess", img_after_preprocess);
+#endif
 	
 	rects = get_location(img_car);
 	get_plate_image(img_car, rects);
@@ -46,6 +50,7 @@ int main(int argc, char *argv [])
 
 	img_after_resize = cvLoadImage("plate_img_after_resize.bmp", -1);
 	preprocess_plate_image(img_after_resize);
+	get_character(img_after_resize);
 
 	cvWaitKey(0);
 	return 0;

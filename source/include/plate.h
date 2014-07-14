@@ -19,4 +19,15 @@ void get_plate_image(IplImage * img_car, List rects);
 void resize_image(IplImage * img_to_resize, IplImage * img_after_resize, float scale);
 void preprocess_plate_image(IplImage * img_after_resize);
 
+void get_contour_rect(IplImage * src_img, List  rects, CvMemStorage * storage, CvSeq * contours);
+void draw_contour_rect(IplImage * src_img, List  rects);
+void filter_rect_by_shape(List src_rects, List dst_rects);
+void print_area_of_rect(CvRect rect);
+
+
+void remove_border_ul(IplImage * img_plate);
+void filter_rect_by_area(List src_rects, List dst_rects, int total_area);
+void get_character(IplImage * img);
+
+
 #endif

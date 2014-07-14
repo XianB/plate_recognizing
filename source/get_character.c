@@ -1,17 +1,13 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include "cv.h"
-#include "highgui.h"
-#include "../include/plate.h"
+#include "include/plate.h"
 
-void remove_border_ul(IplImage * img_plate);
-void draw_contour_rect(IplImage * src_img, List  rects);
-void get_contour_rect(IplImage * src_img, List rects, CvMemStorage * storage, CvSeq * contours);
-void filter_rect_by_shape(List src_rects, List dst_rects, int total_area);
+/*
+	功能是获得最后一个车牌字符
+ */
+static void find_last_character(IplImage * img, List rects);
 
-int main(void) 
+void get_character(IplImage * img) 
 {
-	IplImage * img = cvLoadImage("img_plate_after_preprocess.bmp", -1);
+	img = cvLoadImage("img_plate_after_preprocess.bmp", -1);
 	List rects = create_list();
 	List rects_final = create_list();
 
@@ -22,14 +18,17 @@ int main(void)
 
 	CvMemStorage * storage = cvCreateMemStorage(0);
 	CvSeq * contours = NULL;
+
 	remove_border_ul(img);
-	img = cvLoadImage("tmp_img.bmp", -1);
+	img = cvLoadImage("img_after_border_removed.bmp", -1);
+
 	get_contour_rect(img, rects, storage, contours);
-	filter_rect_by_shape(rects, rects_final, img->width * img->height);
+	filter_rect_by_area(rects, rects_final, img->width * img->height);
 	draw_contour_rect(img, rects_final->next);
+	find_last_character(img, rects_final->next);
 }
 
-//void remove_border(IplImage *img_plate, IplImage* img_after_border_removed)
+/*消除上下边界*/
 void remove_border_ul(IplImage * img_plate)
 {
 	int i = 0, j = 0;
@@ -55,7 +54,6 @@ void remove_border_ul(IplImage * img_plate)
 
 		if (black_to_white >= 6 && white_to_black >= 6 && up_bound < 0) {
 			up_bound = i;
-			printf("%d\n", i);
 		} else if (black_to_white < 6 && white_to_black < 6 && up_bound > 0) {
 			up_bound = -1;
 		}
@@ -78,7 +76,6 @@ void remove_border_ul(IplImage * img_plate)
 
 		if (black_to_white >= 6 && white_to_black >= 6 && low_bound < 0) {
 			low_bound = i;
-			printf("low_bound: %d\n", low_bound);
 		} else if (black_to_white < 6 && white_to_black < 6 && low_bound > 0) {
 			low_bound = -1;
 		}
@@ -99,28 +96,12 @@ void remove_border_ul(IplImage * img_plate)
 	cvSetImageROI(img_plate, cvRect(0, up_bound, img_plate->width, low_bound - up_bound));
 	IplImage * tmp_img = cvCreateImage(cvSize(img_plate->width, low_bound - up_bound), img_plate->depth, img_plate->nChannels);
 	cvCopy(img_plate, tmp_img);
-	cvSaveImage("tmp_img.bmp", tmp_img);
+	cvSaveImage("img_after_border_removed.bmp", tmp_img);
 	cvResetImageROI(img_plate);
 }
 
-void get_contour_rect(IplImage * src_img, List rects, CvMemStorage * storage, CvSeq * contours)
-{
-	IplImage * temp_img = cvCreateImage(cvGetSize(src_img), IPL_DEPTH_8U, 1);
-	temp_img = cvCloneImage(src_img);
-	
-	/*找到所有轮廓,并存在容器storage中*/
-	cvFindContours(temp_img, storage, &contours, sizeof(CvContour), CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
-
-	/*从storage中筛选出矩形轮廓*/
-	while (contours != NULL) {
-		push_back(rects, cvBoundingRect(contours, 0));
-		rects = rects->next;
-		contours = contours->h_next;
-	}
-}
-
-/*通过形状比例筛选出满足形状比例的矩形*/
-void filter_rect_by_shape(List src_rects, List dst_rects, int total_area)
+/*通过大小比例筛选出满足形状比例的矩形*/
+void filter_rect_by_area(List src_rects, List dst_rects, int total_area)
 {
 	if (src_rects == NULL) {
 		fprintf(stderr, "src_rects is empty!\n");
@@ -131,39 +112,46 @@ void filter_rect_by_shape(List src_rects, List dst_rects, int total_area)
 		double area_of_rect = 1.0 * (src_rects->item.width) * (src_rects->item.height);
 
 		/*车牌有固定的形状比例以及大小比例,先按这个粗略提取出车牌位置*/
-//		if (/*scale <= SCALE_MAX && scale >= SCALE_MIN &&*/ area_of_rect <= AREA_MAX && area_of_rect >= AREA_MIN) {
 		if (area_of_rect > (total_area / 15)) {
 			push_back(dst_rects, src_rects->item);
-//			print_area_of_rect(dst_rects->next->item);
 			dst_rects = dst_rects->next;
 		}
 		src_rects = src_rects->next;
 	}
 }
 
-/*画出之前找到的所有矩形形状的位置*/
-void draw_contour_rect(IplImage * src_img, List  rects)
+
+/*功能:找到最后一个字符的图片
+  参数:去除边界后的车牌图片,得到的矩形框列表
+  思想:过找到rects中的各个矩形中左上角坐标最靠右边的那个矩形即可
+ */
+void find_last_character(IplImage * img, List rects)
 {
-	if (rects == NULL) {
-		fprintf(stderr, "rects is NULL!\n");
-		exit(-1);
-	}
-
-	IplImage * temp_img = cvCreateImage(cvGetSize(src_img), IPL_DEPTH_8U, 1);
-	cvNamedWindow("img_with_rect");
-
-	temp_img = cvCloneImage(src_img);
-	if (temp_img == NULL) {
-		fprintf(stderr, "temp_img is NULL!\n");
-		exit(-1);
-	}
+	cvNamedWindow("last_character", 1);
+	int max = -1;
+	CvRect last;
+	IplImage * last_character;
+	/*遍历链表寻找x坐标最大的矩形*/
 	while (rects != NULL) {
-		cvRectangle(temp_img, cvPoint(rects->item.x, rects->item.y), cvPoint(rects->item.x + rects->item.width, rects->item.y + rects->item.height), CV_RGB(0xbF, 0xbd, 0xab), 2, 8, 0);
+		if(rects->item.x > max) {
+			max = rects->item.x;
+			last = rects->item;
+		}
 		rects = rects->next;
 	}
-	cvShowImage("img_with_rect", temp_img);
-	cvWaitKey(0);
+	cvSetImageROI(img, last);
+	last_character = cvCreateImage(cvSize(last.width, last.height), img->depth, img->nChannels);
+
+	cvCopy(img, last_character, 0);
+	cvSaveImage("last_character.bmp", last_character);
+	cvShowImage("last_character", last_character);
 }
+
+
+
+
+
+
 
 
 
