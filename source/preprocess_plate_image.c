@@ -2,6 +2,8 @@
 
 static void get_image_max_min_value(IplImage * img, int * max, int * min);
 static void gray_strecth(IplImage * src_img, IplImage* dst_img, int exp_max, int exp_min);
+static void dilate_erode_x(IplImage * img_after_threshold, IplImage * img_final); 
+static void dilate_erode_y(IplImage * img_final); 
 /*功能:对车牌图像进行预处理,一遍后续的字符操作
  输入:尺度归一化后的车牌图像
  输出:预处理过后的车牌图像.bmp
@@ -10,7 +12,9 @@ static void gray_strecth(IplImage * src_img, IplImage* dst_img, int exp_max, int
  2.灰度拉伸
  3.滤波
  4.边缘检测
- 5.二值化*/
+ 5.二值化
+ 6.膨胀腐蚀
+ */
 
 void preprocess_plate_image(IplImage * img_plate)
 {
@@ -35,7 +39,16 @@ void preprocess_plate_image(IplImage * img_plate)
 #endif
 
 	/******************************开始进行预处理******************************************************/
-	
+	/*与车辆整体预处理不同,这里直接开始进行二值化,而不是先进行边缘检测*/
+	/*一:灰度化*/
+	cvCvtColor(img_plate, img_gray, CV_RGB2GRAY);
+	/*二:灰度拉伸*/
+	cvNormalize(img_gray, img_after_stre, 0, 255, CV_MINMAX);
+	/*三:滤波*/
+	cvSmooth(img_after_stre, img_after_filter, CV_GAUSSIAN);
+	/*四:二值化*/
+	cvThreshold(img_after_filter, img_final, 0, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
+#if 0
 	/*一:灰度化 cvCvtColor(IplImage* src, IplImage* dst, int color)*/
 	cvCvtColor(img_plate, img_gray, CV_RGB2GRAY);
 	/*二:灰度拉伸*/
@@ -46,6 +59,34 @@ void preprocess_plate_image(IplImage * img_plate)
 	cvCanny(img_after_filter, img_after_sobel, 50, 150, 3);
 	/*五:二值化*/
 	cvThreshold(img_after_sobel, img_final, 0, 255, CV_THRESH_BINARY| CV_THRESH_OTSU);
+	/*六:膨胀腐蚀*/
+	dilate_erode_x(img_final, img_final);
+	dilate_erode_y(img_final);
+#endif
+
+#if 0
+	/*一:灰度化 cvCvtColor(IplImage* src, IplImage* dst, int color)*/
+	cvCvtColor(img_plate, img_gray, CV_RGB2GRAY);
+
+	/*二:灰度拉伸*/
+	cvNormalize(img_gray, img_after_stre, 0, 255, CV_MINMAX);
+
+	/*三:滤波*/
+	cvSmooth(img_after_stre, img_after_filter, CV_GAUSSIAN);
+//	img_after_filter = cvCloneImage(img_after_stre);
+
+	/*五:二值化*/
+	cvThreshold(img_gray, img_final, 0, 255, CV_THRESH_BINARY| CV_THRESH_OTSU);
+
+	/*四:边缘检测*/
+	cvCanny(img_after_filter, img_after_sobel, 0, 50, 3);
+
+
+	/*六:膨胀腐蚀*/
+	dilate_erode_x(img_final, img_final);
+	dilate_erode_y(img_final);
+
+#endif
 
 
 	/*********************************显示图像******************************************************************/
@@ -127,3 +168,27 @@ void get_image_max_min_value(IplImage * img, int * max, int * min)
 	*max = max_temp;
 	*min = min_temp;
 }
+
+/*自定义膨胀腐蚀操作,在循环中使用可以增加定位准确度*/
+void dilate_erode_x(IplImage * img_after_threshold, IplImage * img_final) {
+	/*自定义1*3的核进行X方向的膨胀腐蚀*/
+	IplConvKernel* kernal = cvCreateStructuringElementEx(3,1, 1, 0, CV_SHAPE_RECT);
+	cvDilate(img_after_threshold, img_final, kernal, 1);/*X方向膨胀连通数字*/
+	cvErode(img_final, img_final, kernal, 1);/*X方向腐蚀去除碎片*/
+	cvDilate(img_final, img_final, kernal, 1);/*X方向膨胀回复形态*/
+	cvErode(img_final, img_final, kernal, 1);/*X方向腐蚀去除碎片*/
+	cvDilate(img_final, img_final, kernal, 1);/*X方向膨胀回复形态*/
+}
+
+void dilate_erode_y(IplImage * img_final) {
+	/*自定义3*1的核进行Y方向的膨胀腐蚀*/
+	IplConvKernel* kernal = cvCreateStructuringElementEx(1, 3, 0, 1, CV_SHAPE_RECT);
+	cvDilate(img_final, img_final, kernal, 1);/*回复形态*/
+	cvErode(img_final, img_final, kernal, 1);/*Y方向腐蚀去除碎片*/
+	cvDilate(img_final, img_final, kernal, 1);/*回复形态*/
+	cvErode(img_final, img_final, kernal, 1);/*Y方向腐蚀去除碎片*/
+	cvDilate(img_final, img_final, kernal, 1);/*回复形态*/
+}
+
+
+

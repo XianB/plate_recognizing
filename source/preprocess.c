@@ -118,7 +118,7 @@ void get_image_max_min_value(IplImage * img, int * max, int * min)
 
 		unsigned char * prow = (unsigned char *)(img->imageData + i * img->widthStep);
 
-		for (int j; j < img->width; j ++) {
+		for (int j = 0; j < img->width; j ++) {
 
 			if (prow[j] >= max_temp)	
 			  max_temp = prow[j];
