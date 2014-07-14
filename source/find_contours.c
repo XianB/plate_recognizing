@@ -42,7 +42,6 @@ void draw_contour_rect(IplImage * src_img, List  rects)
 		rects = rects->next;
 	}
 	cvShowImage("img_with_rect", temp_img);
-	cvWaitKey(0);
 }
 
 /*通过形状比例筛选出满足形状比例的矩形*/
