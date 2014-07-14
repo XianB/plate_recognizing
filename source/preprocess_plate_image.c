@@ -1,37 +1,33 @@
 #include "include/plate.h"
 
-static void gray_strecth(IplImage * src_img, IplImage* dst_img, int exp_max, int exp_min);
 static void get_image_max_min_value(IplImage * img, int * max, int * min);
+static void gray_strecth(IplImage * src_img, IplImage* dst_img, int exp_max, int exp_min);
+/*功能:对车牌图像进行预处理,一遍后续的字符操作
+ 输入:尺度归一化后的车牌图像
+ 输出:预处理过后的车牌图像.bmp
+ 主要步骤:
+ 1.灰度化:
+ 2.灰度拉伸
+ 3.滤波
+ 4.边缘检测
+ 5.二值化*/
 
-/*功能:对车辆整体图像进行预处理
- 输入:车辆原始图像
- 输出:预处理完成后的图像
- 过程:
-	1.灰度化
-	2.灰度拉伸
-	3.滤波
-	4.边缘检测
-	5.二值化
-	6.腐蚀膨胀 //这一步可以移动到车牌定位中去,要用循环进行筛选
- 作者:唐显斌
- 版本:v1.2
- */
-
-void preprocess_car_img(IplImage * img_car)
+void preprocess_plate_image(IplImage * img_plate)
 {
-	if (img_car == NULL) {
-		fprintf(stderr, "img_car is NULL.\n");
+	if (img_plate == NULL) {
+		fprintf(stderr, "img_plate is NULL.!!\n");
 		exit(-1);
 	}
 	/*********************************准备工作**************************************************************/
-	IplImage * img_gray = cvCreateImage(cvGetSize(img_car), IPL_DEPTH_8U, 1);
-	IplImage * img_after_stre = cvCreateImage(cvGetSize(img_car), IPL_DEPTH_8U, 1);
-	IplImage * img_after_sobel = cvCreateImage(cvGetSize(img_car), IPL_DEPTH_8U, 1);
-	IplImage * img_after_filter = cvCreateImage(cvGetSize(img_car), IPL_DEPTH_8U, 1);
-	IplImage * img_final = cvCreateImage(cvGetSize(img_car), IPL_DEPTH_8U, 1);
+
+	IplImage * img_gray = cvCreateImage(cvGetSize(img_plate), IPL_DEPTH_8U, 1);
+	IplImage * img_after_stre = cvCreateImage(cvGetSize(img_plate), IPL_DEPTH_8U, 1);
+	IplImage * img_after_sobel = cvCreateImage(cvGetSize(img_plate), IPL_DEPTH_8U, 1);
+	IplImage * img_after_filter = cvCreateImage(cvGetSize(img_plate), IPL_DEPTH_8U, 1);
+	IplImage * img_final = cvCreateImage(cvGetSize(img_plate), IPL_DEPTH_8U, 1);
 
 #if 0
-	cvNamedWindow("img_car", 1);
+	cvNamedWindow("img_plate", 1);
 	cvNamedWindow("img_after_stre", 1);
 	cvNamedWindow("img_after_sobel", 1);
 	cvNamedWindow("img_after_filter", 1);
@@ -41,7 +37,7 @@ void preprocess_car_img(IplImage * img_car)
 	/******************************开始进行预处理******************************************************/
 	
 	/*一:灰度化 cvCvtColor(IplImage* src, IplImage* dst, int color)*/
-	cvCvtColor(img_car, img_gray, CV_RGB2GRAY);
+	cvCvtColor(img_plate, img_gray, CV_RGB2GRAY);
 	/*二:灰度拉伸*/
 	gray_strecth(img_gray, img_after_stre, 255, 0);
 	/*三:滤波*/
@@ -54,7 +50,7 @@ void preprocess_car_img(IplImage * img_car)
 
 	/*********************************显示图像******************************************************************/
 #if 0
-	cvShowImage("img_car", img_car);
+	cvShowImage("img_plate", img_plate);
 	cvShowImage("img_gray", img_gray);
 	cvShowImage("img_after_stre", img_after_stre);
 	cvShowImage("img_after_sobel", img_after_sobel);
@@ -66,7 +62,7 @@ void preprocess_car_img(IplImage * img_car)
 	/*********************************最终需要返回img_final图像到dst_img中****************************************/
 	IplImage * dst_img;
 	dst_img = cvCloneImage(img_final);
-	cvSaveImage("img_after_preprocess.bmp", dst_img);
+	cvSaveImage("img_plate_after_preprocess.bmp", dst_img);
 	/*********************************释放内存****************************************************************/
 	cvReleaseImage(&img_gray);
 	cvReleaseImage(&img_after_stre);

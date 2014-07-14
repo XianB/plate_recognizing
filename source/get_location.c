@@ -7,13 +7,6 @@ static void dilate_erode_x(IplImage * img_after_threshold, IplImage * img_final)
 static void dilate_erode_y(IplImage * img_final); 
 static void filter_rect_by_shape(List src_rects, List dst_rects);
 static void print_area_of_rect(CvRect rect);
-static void get_plate_image(IplImage * src_img, List  rects);
-
-#define SCALE_MAX 4.5
-#define SCALE_MIN 2.5
-#define AREA_MAX 620
-#define AREA_MIN 200
-#define FILENAME_LEN 50
 
 
 /*
@@ -28,11 +21,15 @@ static void get_plate_image(IplImage * src_img, List  rects);
 4.用循环控制膨胀腐蚀的次数,找到最优矩形即为车牌位置
  */
 
-void get_location(IplImage * img_car)
+List get_location(IplImage * img_car)
 {
 	List rects = create_list();
 	List rects_final = create_list();
 	IplImage * img_after_preprocess = cvLoadImage("img_after_preprocess.bmp", -1);
+	if (img_after_preprocess == NULL) {
+		fprintf(stderr, "Can not load image -- img_after_preprocess.bmp!\n");
+		exit(-1);
+	}
 
 	CvMemStorage * storage = cvCreateMemStorage(0);
 	CvSeq * contours = NULL;
@@ -47,9 +44,7 @@ void get_location(IplImage * img_car)
 	/*注意rects有头结点,所以传进去的时候忽略掉头结点*/
 	draw_contour_rect(img_after_preprocess, rects_final->next);
 
-	/*获得车牌图像*/
-	get_plate_image(img_car, rects_final->next);
-
+	return rects_final->next;
 }
 
 /*功能:找出图像中的所有矩形轮廓
@@ -101,11 +96,16 @@ void draw_contour_rect(IplImage * src_img, List  rects)
 /*通过形状比例筛选出满足形状比例的矩形*/
 void filter_rect_by_shape(List src_rects, List dst_rects)
 {
+	if (src_rects == NULL) {
+		fprintf(stderr, "src_rects is empty!\n");
+		exit(-1);
+	}
 	while (src_rects != NULL) {
 		double scale = 1.0 * (src_rects->item.width) / (src_rects->item.height);
 		double area_of_rect = 1.0 * (src_rects->item.width) * (src_rects->item.height);
 
-		if (scale <= SCALE_MAX && scale >= SCALE_MIN /*&& area_of_rect <= AREA_MAX && area_of_rect >= AREA_MIN*/) {
+		/*车牌有固定的形状比例以及大小比例,先按这个粗略提取出车牌位置*/
+		if (scale <= SCALE_MAX && scale >= SCALE_MIN && area_of_rect <= AREA_MAX && area_of_rect >= AREA_MIN) {
 			push_back(dst_rects, src_rects->item);
 			print_area_of_rect(dst_rects->next->item);
 			dst_rects = dst_rects->next;
@@ -122,46 +122,21 @@ void print_area_of_rect(CvRect rect)
 	printf("the area of this rect is %d\n", rect.width * rect.height);
 }
 
-/*获得车牌图像*/
-void get_plate_image(IplImage * src_img, List  rects)
-{
-	IplImage * plate_img;
-	int rect_count = 0;
-	char filename[FILENAME_LEN];
-	int i = 0;
-
-	while (rects != NULL) {
-		i++;
-		sprintf(filename, "plate_img%d.bmp", rect_count);
-		cvSetImageROI(src_img, cvRect(rects->item.x, rects->item.y, rects->item.width, rects->item.height));
-		plate_img = cvCreateImage(cvSize(rects->item.width, rects->item.height), src_img->depth, src_img->nChannels);
-		
-		cvCopy(src_img, plate_img, 0);
-		cvSaveImage(filename, plate_img);
-		rect_count++;
-		cvResetImageROI(src_img);
-		rects = rects->next;
-		if (i > 20) {
-			break;
-		}
-	}
-}
-
 
 /*自定义膨胀腐蚀操作,在循环中使用可以增加定位准确度*/
 void dilate_erode_x(IplImage * img_after_threshold, IplImage * img_final) {
 	/*自定义1*3的核进行X方向的膨胀腐蚀*/
 	IplConvKernel* kernal = cvCreateStructuringElementEx(3,1, 1, 0, CV_SHAPE_RECT);
-	cvDilate(img_after_threshold, img_final, kernal, 3);//X方向膨胀连通数字
-	cvErode(img_final, img_final, kernal, 1);//X方向腐蚀去除碎片
-	cvDilate(img_final, img_final, kernal, 3);//X方向膨胀回复形态
+	cvDilate(img_after_threshold, img_final, kernal, 3);/*X方向膨胀连通数字*/
+	cvErode(img_final, img_final, kernal, 1);/*X方向腐蚀去除碎片*/
+	cvDilate(img_final, img_final, kernal, 3);/*X方向膨胀回复形态*/
 }
 
 void dilate_erode_y(IplImage * img_final) {
 	/*自定义3*1的核进行Y方向的膨胀腐蚀*/
 	IplConvKernel* kernal = cvCreateStructuringElementEx(1, 3, 0, 1, CV_SHAPE_RECT);
-	cvErode(img_final, img_final, kernal, 3);// Y方向腐蚀去除碎片
-	cvDilate(img_final, img_final, kernal, 3);//回复形态
+	cvErode(img_final, img_final, kernal, 3);/*Y方向腐蚀去除碎片*/
+	cvDilate(img_final, img_final, kernal, 3);/*回复形态*/
 }
 
 

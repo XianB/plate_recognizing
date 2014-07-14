@@ -7,6 +7,9 @@ int main(int argc, char *argv [])
 	IplImage * img_car = NULL;
 	IplImage * img_after_preprocess;
 	IplImage * img_plate = NULL;
+	IplImage * img_after_resize;
+
+	List rects;
 
 	cvNamedWindow("img_car", 1);
 	cvNamedWindow("img_after_preprocess", 1);
@@ -30,9 +33,33 @@ int main(int argc, char *argv [])
 	/*显示预处理完成后的图像*/
 	cvShowImage("img_after_preprocess", img_after_preprocess);
 	
-	get_location(img_car);
+	rects = get_location(img_car);
+	get_plate_image(img_car, rects);
 
+	img_plate = cvLoadImage("plate_img0.bmp", -1);
+	if (img_plate == NULL) {
+		fprintf(stderr, "Can not open plate image file!\n");
+		exit(-1);
+	}
+
+	resize_image(img_plate,img_after_resize, 5);
+
+	img_after_resize = cvLoadImage("plate_img_after_resize.bmp", -1);
+	preprocess_plate_image(img_after_resize);
 
 	cvWaitKey(0);
 	return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
