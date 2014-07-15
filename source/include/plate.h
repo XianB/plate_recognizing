@@ -29,5 +29,6 @@ void remove_border_ul(IplImage * img_plate);
 void filter_rect_by_area(List src_rects, List dst_rects, int total_area);
 void get_character(IplImage * img);
 
+int character_recognizing(IplImage * img_char);
 
 #endif

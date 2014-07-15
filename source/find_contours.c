@@ -11,7 +11,8 @@ void get_contour_rect(IplImage * src_img, List  rects, CvMemStorage * storage, C
 	temp_img = cvCloneImage(src_img);
 	
 	/*找到所有轮廓,并存在容器storage中*/
-	cvFindContours(temp_img, storage, &contours, sizeof(CvContour), CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
+	/*注意:这里修改为了只检测外轮廓*/
+	cvFindContours(temp_img, storage, &contours, sizeof(CvContour), CV_RETR_LIST, CV_RETR_EXTERNAL | CV_CHAIN_APPROX_SIMPLE);
 
 	/*从storage中筛选出矩形轮廓*/
 	while (contours != NULL) {
@@ -42,6 +43,7 @@ void draw_contour_rect(IplImage * src_img, List  rects)
 		rects = rects->next;
 	}
 	cvShowImage("img_with_rect", temp_img);
+	cvWaitKey(0);
 }
 
 /*通过形状比例筛选出满足形状比例的矩形*/

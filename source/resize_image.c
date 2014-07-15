@@ -1,8 +1,11 @@
 #include "include/plate.h"
 
-/*功能:对图像进行尺寸归一化处理
+/*
+ 功能:对图像进行尺寸归一化处理
  输入:拉长/压缩比例(0.1 <= scale <= 10)
- 输出:归一化完成后的图像*/
+ 输出:归一化完成后的图像
+ */
+
 void resize_image(IplImage * img_to_resize, IplImage * img_after_resize, float scale)
 {
 	if (scale < 0.1 || scale > 10) {

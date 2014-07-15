@@ -8,6 +8,7 @@ int main(int argc, char *argv [])
 	IplImage * img_after_preprocess;
 	IplImage * img_plate = NULL;
 	IplImage * img_after_resize;
+	IplImage * last_character;
 
 	List rects;
 
@@ -52,6 +53,13 @@ int main(int argc, char *argv [])
 	img_after_resize = cvLoadImage("plate_img_after_resize.bmp", -1);
 	preprocess_plate_image(img_after_resize);
 	get_character(img_after_resize);
+
+	last_character = cvLoadImage("last_character.bmp", -1);
+	if (last_character == NULL) {
+		fprintf(stderr, "Can not open last character image!\n");
+		exit(-1);
+	}
+	character_recognizing(last_character);
 
 	cvWaitKey(0);
 	return 0;
