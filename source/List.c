@@ -9,6 +9,8 @@ List create_list()
 		fprintf(stderr, "Error! out of space!\n");
 	}
 
+	L->next = NULL;
+
 	return L;
 }
 
@@ -18,6 +20,7 @@ void push_back(List L, CvRect i)
 	if (tmp == NULL) {
 		fprintf(stderr, "Error! out of space!\n");
 	}
+
 
 	tmp->item = i;
 	L->next = tmp;

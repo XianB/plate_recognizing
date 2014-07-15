@@ -18,7 +18,8 @@ void get_plate_image(IplImage * src_img, List  rects)
 	while (rects != NULL) {
 		i++;
 		sprintf(filename, "plate_img%d.bmp", rect_count);
-		cvSetImageROI(src_img, cvRect(rects->item.x, rects->item.y, rects->item.width, rects->item.height));
+		cvSetImageROI(src_img, rects->item);
+//		cvSetImageROI(src_img, cvRect(rects->item.x, rects->item.y, rects->item.width, rects->item.height));
 		plate_img = cvCreateImage(cvSize(rects->item.width, rects->item.height), src_img->depth, src_img->nChannels);
 		
 		cvCopy(src_img, plate_img, 0);

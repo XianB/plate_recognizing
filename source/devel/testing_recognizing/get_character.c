@@ -1,10 +1,8 @@
-#include "include/plate.h"
-
+#include "../include/plate.h"
 /*
 	功能是获得最后一个车牌字符
  */
 static void find_last_character(IplImage * img, List rects);
-static void filter_rect_by_area(List src_rects, List dst_rects, int total_area);
 
 void get_character(IplImage * img) 
 {

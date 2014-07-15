@@ -1,7 +1,10 @@
 #include "include/plate.h"
 
+#if 0
+/*不再需要这两个函数了*/
 static void gray_strecth(IplImage * src_img, IplImage* dst_img, int exp_max, int exp_min);
 static void get_image_max_min_value(IplImage * img, int * max, int * min);
+#endif
 
 /*功能:对车辆整体图像进行预处理
  输入:车辆原始图像
@@ -39,15 +42,18 @@ void preprocess_car_img(IplImage * img_car)
 #endif
 
 	/******************************开始进行预处理******************************************************/
+	/*可改进程度不大*/
 	
 	/*一:灰度化 cvCvtColor(IplImage* src, IplImage* dst, int color)*/
 	cvCvtColor(img_car, img_gray, CV_RGB2GRAY);
 	/*二:灰度拉伸*/
-	gray_strecth(img_gray, img_after_stre, 255, 0);
+	cvNormalize(img_gray, img_after_stre, 0, 255, CV_MINMAX);
+	/*gray_strecth(img_gray, img_after_stre, 255, 0);  有自带的函数比这个好用*/
+
 	/*三:滤波*/
 	cvSmooth(img_after_stre, img_after_filter, CV_GAUSSIAN);
 	/*四:边缘检测*/
-	cvCanny(img_after_filter, img_after_sobel, 50, 150, 3);
+	cvCanny(img_after_filter, img_after_sobel, 50, 150, 3);	/*比用sobel函数好,因为这个不会分方向,把所有的边缘都画了出来了*/
 	/*五:二值化*/
 	cvThreshold(img_after_sobel, img_final, 0, 255, CV_THRESH_BINARY| CV_THRESH_OTSU);
 
@@ -76,6 +82,8 @@ void preprocess_car_img(IplImage * img_car)
 
 }
 
+#if 0
+/*不再需要这两个函数了*/
 /*灰度拉伸函数
  参数:源图像,目标图像,最大值,最小值*/
 void gray_strecth(IplImage * src_img, IplImage* dst_img, int exp_max, int exp_min)
@@ -131,3 +139,5 @@ void get_image_max_min_value(IplImage * img, int * max, int * min)
 	*max = max_temp;
 	*min = min_temp;
 }
+
+#endif
