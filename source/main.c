@@ -53,6 +53,8 @@ int main(int argc, char *argv [])
 #endif
 	
 	rects = get_location(img_car_after_resize);			/*得到车牌的位置,起初设计阶段是可以有多个预选位置,但是后来发现不用,所以rects其实只有一个位置*/
+	/*由于在get_location中返回的是头结点的next节点,所以这里的参数不用rects->next*/
+	assert(rects != NULL);
 	get_plate_image(img_car_after_resize, rects);		/*得到车牌的图像*/
 
 	img_plate = cvLoadImage("plate_img0.bmp", -1);		/*上面那个函数中得到的plate_img.bmp图像*/
@@ -65,7 +67,10 @@ int main(int argc, char *argv [])
 
 	img_after_resize = cvLoadImage("plate_img_after_resize.bmp", -1);
 	preprocess_plate_image(img_after_resize);
+		printf("3\n\n\n");
 	get_character(img_after_resize);
+
+	printf("\n\n\n\n\nhere\n\n\n");
 
 	last_character = cvLoadImage("last_character.bmp", -1);
 	if (last_character == NULL) {

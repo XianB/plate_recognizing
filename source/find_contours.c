@@ -26,8 +26,9 @@ void get_contour_rect(IplImage * src_img, List  rects, CvMemStorage * storage, C
 void draw_contour_rect(IplImage * src_img, List rects)
 {
 	if (rects == NULL) {
-		fprintf(stderr, "rects is NULL!\n");
-		exit(-1);
+		fprintf(stderr, "rects is NULL! in draw_contour_rect function.\n");
+		return;
+//		exit(-1);
 	}
 
 	IplImage * temp_img = cvCreateImage(cvGetSize(src_img), IPL_DEPTH_8U, 1);

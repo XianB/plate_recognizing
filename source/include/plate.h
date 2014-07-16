@@ -6,6 +6,7 @@
 #include "List.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #define SCALE_MAX 4.5
 #define SCALE_MIN 2.5

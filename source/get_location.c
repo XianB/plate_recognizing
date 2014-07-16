@@ -21,6 +21,7 @@ List get_location(IplImage * img_car)
 	/*分别为用来装预处理后的图像中所有矩形轮廓和筛选过后的轮廓的链表*/
 	List rects = create_list();
 	List rects_final = create_list();
+	assert(rects_final->next == NULL);
 
 	IplImage * img_after_preprocess = cvLoadImage("img_after_preprocess.bmp", -1);
 
@@ -32,7 +33,49 @@ List get_location(IplImage * img_car)
 	/*在检测轮廓时需要用到的两个量,storage为容器,contours为指向轮廓的指针*/
 	CvMemStorage * storage = cvCreateMemStorage(0);
 	CvSeq * contours = NULL;
+#if 1
+	/*7.17.11.26加上
+	 目的:改进车牌定位准确度
+	 争取一次定位成功,并且只定位一个位置,不要预选位置
+	 */
 
+	while (rects_final->next == NULL) {
+		static int count = 0;
+		count++;
+		assert(count < 10);
+		/*重点改进之处,膨胀和腐蚀的次数是很关键的*/
+		dilate_erode_x(img_after_preprocess, img_after_preprocess);
+		dilate_erode_y(img_after_preprocess);
+
+		/*找到所有的矩形轮廓*/
+		get_contour_rect(img_after_preprocess, rects, storage, contours);/*没什么可以改进的地方*/
+		assert(rects->next != NULL);
+
+		/*按照形状进行矩形筛选*/
+		/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+		/*重点改进之处,如何筛选出目标矩形是重点*/
+		filter_rect_by_shape(rects->next, rects_final);				
+
+			cvNamedWindow("tmp_image", 1);
+			cvShowImage("tmp_img", img_after_preprocess);
+			cvWaitKey(0);
+		/*如果不为一个矩形就继续循环,膨胀腐蚀*/
+			/*这一个要满足什么条件呢?继续用颜色确认一下*/
+		if (count_node(rects_final) != 1) {
+			continue;
+		}
+
+		printf("count\n");
+		/*注意rects有头结点,所以传进去的时候忽略掉头结点*/
+		draw_contour_rect(img_after_preprocess, rects_final->next);
+	}
+		return rects_final->next;
+#endif
+
+#if 0
+	/*7.16.11.26注释掉:
+	 目的:改进车牌定位准确度
+	 当前状态:能正常运行,并且定位准确度在测试中*/
 	/*先进行膨胀腐蚀*/
 	/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 	/*重点改进之处,膨胀和腐蚀的次数是很关键的*/
@@ -53,6 +96,7 @@ List get_location(IplImage * img_car)
 	draw_contour_rect(img_after_preprocess, rects_final->next);
 
 	return rects_final->next;
+#endif
 }
 
 /*通过形状比例筛选出满足形状比例的矩形*/
@@ -82,7 +126,7 @@ void filter_rect_by_shape(List src_rects, List dst_rects)
 void dilate_erode_x(IplImage * img_after_threshold, IplImage * img_final) {
 	/*自定义1*3的核进行X方向的膨胀腐蚀*/
 	IplConvKernel* kernal = cvCreateStructuringElementEx(3,1, 1, 0, CV_SHAPE_RECT);
-	cvDilate(img_after_threshold, img_final, kernal, 3);/*X方向膨胀连通数字*/
+	cvDilate(img_after_threshold, img_final, kernal, 2);/*X方向膨胀连通数字*/
 	cvErode(img_final, img_final, kernal, 1);/*X方向腐蚀去除碎片*/
 	cvDilate(img_final, img_final, kernal, 3);/*X方向膨胀回复形态*/
 }
@@ -90,8 +134,8 @@ void dilate_erode_x(IplImage * img_after_threshold, IplImage * img_final) {
 void dilate_erode_y(IplImage * img_final) {
 	/*自定义3*1的核进行Y方向的膨胀腐蚀*/
 	IplConvKernel* kernal = cvCreateStructuringElementEx(1, 3, 0, 1, CV_SHAPE_RECT);
-	cvErode(img_final, img_final, kernal, 3);/*Y方向腐蚀去除碎片*/
-	cvDilate(img_final, img_final, kernal, 3);/*回复形态*/
+	cvErode(img_final, img_final, kernal, 1);/*Y方向腐蚀去除碎片*/
+	cvDilate(img_final, img_final, kernal, 2);/*回复形态*/
 }
 
 
