@@ -10,8 +10,8 @@
 
 #define SCALE_MAX 4.5
 #define SCALE_MIN 2.5
-#define AREA_MAX 10020
-#define AREA_MIN 800
+#define AREA_MAX 15000
+#define AREA_MIN 3800
 #define FILENAME_LEN 50
 
 void preprocess_car_img(IplImage * car_img);

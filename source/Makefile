@@ -1,5 +1,6 @@
 main:main.o preprocess.o get_location.o get_plate_image.o List.o resize_image.o preprocess_plate_image.o find_contours.o get_character.o character_recognizing.o include/plate.h include/List.h
 	g++ `pkg-config opencv --cflags` main.o preprocess.o get_location.o get_plate_image.o List.o resize_image.o preprocess_plate_image.o find_contours.o get_character.o character_recognizing.o -o main `pkg-config opencv --libs`
+	make clean_obj
 main.o: main.c include/plate.h include/List.h
 	g++ `pkg-config opencv --cflags` -c main.c -o main.o `pkg-config opencv --libs`
 preprocess.o: preprocess.c include/plate.h include/List.h
@@ -28,4 +29,6 @@ clean:
 clean_image:
 	rm *.bmp
 
+clean_obj:
+	rm *.o 
 

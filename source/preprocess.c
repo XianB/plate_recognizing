@@ -49,7 +49,6 @@ void preprocess_car_img(IplImage * img_car)
 	/*二:灰度拉伸*/
 	cvNormalize(img_gray, img_after_stre, 0, 255, CV_MINMAX);
 	/*gray_strecth(img_gray, img_after_stre, 255, 0);  有自带的函数比这个好用*/
-
 	/*三:滤波*/
 	cvSmooth(img_after_stre, img_after_filter, CV_GAUSSIAN);
 	/*四:边缘检测*/

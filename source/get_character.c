@@ -70,7 +70,7 @@ void remove_border_ul(IplImage * img_plate)
 		if (black_to_white >= 6 && white_to_black >= 6 && up_bound < 0) {
 			up_bound = i;
 		} else if (black_to_white < 6 && white_to_black < 6 && up_bound > 0) {
-			printf("black_to_white : %d whilte_to_black: %d , up_bound %d\n",black_to_white, white_to_black, up_bound);
+//			printf("black_to_white : %d whilte_to_black: %d , up_bound %d\n",black_to_white, white_to_black, up_bound);
 			up_bound = -1;
 		}
 	}
@@ -96,7 +96,7 @@ void remove_border_ul(IplImage * img_plate)
 			low_bound = -1;
 		}
 	
-		printf("%d\n", low_bound);
+		//printf("%d\n", low_bound);
 	}
 	
 #if 0
@@ -112,8 +112,8 @@ void remove_border_ul(IplImage * img_plate)
 #endif
 	/*这里容易出错!*/
 
-printf("%d %d %d %d", 0, up_bound, img_plate->width - 2, low_bound - up_bound - 2);
-assert(low_bound > 0 && up_bound >0);
+//printf("%d %d %d %d", 0, up_bound, img_plate->width - 2, low_bound - up_bound - 2);
+	assert(low_bound > 0 && up_bound >0);
 	cvSetImageROI(img_plate, cvRect(0, up_bound, img_plate->width - 2, low_bound - up_bound - 2));		/*-2保证不要越界*/
 	IplImage * tmp_img = cvCreateImage(cvSize(img_plate->width - 2, low_bound - up_bound - 2), img_plate->depth, img_plate->nChannels);
 	cvCopy(img_plate, tmp_img);
@@ -133,7 +133,7 @@ void filter_rect_by_area(List src_rects, List dst_rects, int total_area)
 		double scale = 1.0 * (src_rects->item.width) / (src_rects->item.height);
 		double area_of_rect = 1.0 * (src_rects->item.width) * (src_rects->item.height);
 
-		printf("in find rects character %d %d %d %d \n", src_rects->item.x, src_rects->item.y, src_rects->item.x + src_rects->item.width, src_rects->item.y + src_rects->item.height);
+	//	printf("in find rects character %d %d %d %d \n", src_rects->item.x, src_rects->item.y, src_rects->item.x + src_rects->item.width, src_rects->item.y + src_rects->item.height);
 		/*车牌有固定的形状比例以及大小比例,先按这个粗略提取出车牌位置*/
 		if (area_of_rect > (total_area / 15)) {
 			push_back(dst_rects, src_rects->item);
@@ -171,8 +171,8 @@ void find_last_character(IplImage * img, List rects)
 	}
 	assert(last.x > 0 && last.y > 0 && last.width > 0 && last.height > 0);
 
-	printf("in find last character %d %d %d %d \n", last.x, last.y, last.x + last.width, last.y + last.height);
-	printf("in find last character %d %d %d %d \n", 0, 0, img->width, img->height);
+	//printf("in find last character %d %d %d %d \n", last.x, last.y, last.x + last.width, last.y + last.height);
+	//printf("in find last character %d %d %d %d \n", 0, 0, img->width, img->height);
 	cvSetImageROI(img, last);
 	last_character = cvCreateImage(cvSize(last.width, last.height), img->depth, img->nChannels);
 	printf("setROI in find_last_character success\n");

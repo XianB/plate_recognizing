@@ -6,7 +6,7 @@ static void dilate_erode_y(IplImage * img_final);
 static void filter_rect_by_area(List src_rects, List dst_rects, int total_area);
 /*
 输入:预处理完成后的车辆图像
-输出:车牌定位的位置
+输出:唯一的车牌定位的位置
 作者:唐显斌
 版本:v1.2
 基本思路:
@@ -22,9 +22,9 @@ List get_location(IplImage * img_car)
 	List rects = create_list();
 	List rects_final = create_list();
 	assert(rects_final->next == NULL);
+	cvNamedWindow("tmp_image", 1);
 
 	IplImage * img_after_preprocess = cvLoadImage("img_after_preprocess.bmp", -1);
-
 	if (img_after_preprocess == NULL) {
 		fprintf(stderr, "Can not load image -- img_after_preprocess.bmp!\n");
 		exit(-1);
@@ -56,16 +56,20 @@ List get_location(IplImage * img_car)
 		/*重点改进之处,如何筛选出目标矩形是重点*/
 		filter_rect_by_shape(rects->next, rects_final);				
 
-			cvNamedWindow("tmp_image", 1);
+#if 1
+		/*用来逐步显示如果一次没找到候选位置时的操作*/
 			cvShowImage("tmp_img", img_after_preprocess);
 			cvWaitKey(0);
+#endif
 		/*如果不为一个矩形就继续循环,膨胀腐蚀*/
 			/*这一个要满足什么条件呢?继续用颜色确认一下*/
 		if (count_node(rects_final) != 1) {
 			continue;
+		} else if (1/*如果用颜色判断也成功的话就是这个地方,否则继续判断*/) {
+			;
 		}
 
-		printf("count\n");
+
 		/*注意rects有头结点,所以传进去的时候忽略掉头结点*/
 		draw_contour_rect(img_after_preprocess, rects_final->next);
 	}
@@ -109,12 +113,12 @@ void filter_rect_by_shape(List src_rects, List dst_rects)
 	}
 	while (src_rects != NULL) {
 		double scale = 1.0 * (src_rects->item.width) / (src_rects->item.height);
-		double area_of_rect = 1.0 * (src_rects->item.width) * (src_rects->item.height);
+		int area_of_rect = (src_rects->item.width) * (src_rects->item.height);
 
 		/*车牌有固定的形状比例以及大小比例,先按这个粗略提取出车牌位置*/
 		if (scale <= SCALE_MAX && scale >= SCALE_MIN && area_of_rect <= AREA_MAX && area_of_rect >= AREA_MIN) {
 			push_back(dst_rects, src_rects->item);
-//			print_area_of_rect(dst_rects->next->item);
+			printf("area is %d\n", area_of_rect);
 			dst_rects = dst_rects->next;
 		}
 		src_rects = src_rects->next;
