@@ -33,6 +33,7 @@ List get_location(IplImage * img_car)
 	/*在检测轮廓时需要用到的两个量,storage为容器,contours为指向轮廓的指针*/
 	CvMemStorage * storage = cvCreateMemStorage(0);
 	CvSeq * contours = NULL;
+
 #if 1
 	/*7.17.11.26加上
 	 目的:改进车牌定位准确度
@@ -40,6 +41,7 @@ List get_location(IplImage * img_car)
 	 */
 
 	while (rects_final->next == NULL) {
+		/*主要问题是,如何在第一次就确定那个车牌的位置?*/
 		static int count = 0;
 		count++;
 		assert(count < 10);
@@ -53,25 +55,31 @@ List get_location(IplImage * img_car)
 
 		/*按照形状进行矩形筛选*/
 		/*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-		/*重点改进之处,如何筛选出目标矩形是重点*/
+
+		/*重点改进之处,如何筛选出目标矩形是重点,如何保证在经过筛选之后保留的只是一个候选位置是关键,筛选完的结果只有两种,一是空,什么都没有找到,另一种是找到几个候选位置,但是通过颜色判断之后发现肯定不是车牌的位置,
+			也就是说如果目前还没有得到候选位置只有可能是这样,在filter中找到的所有矩形颜色都不是蓝色的,也就是说车牌还没膨胀出来,而不会出现有一个位置,但这个位置不是车牌位置的情况
+		 */
+
+		draw_contour_rect(img_after_preprocess, rects);			/*显示未筛选前的矩形位置,看看到底有没有把车牌的位置找到*/
 		filter_rect_by_shape(rects->next, rects_final);				
 
 #if 1
 		/*用来逐步显示如果一次没找到候选位置时的操作*/
-			cvShowImage("tmp_img", img_after_preprocess);
-			cvWaitKey(0);
+		cvShowImage("tmp_img", img_after_preprocess);
+		cvWaitKey(0);
 #endif
+
 		/*如果不为一个矩形就继续循环,膨胀腐蚀*/
-			/*这一个要满足什么条件呢?继续用颜色确认一下*/
-		if (count_node(rects_final) != 1) {
+			/*这一个要满足什么条件呢?*/
+
+		if (count_node(rects_final) == 0) {
+			empty_list(rects_final);		/*要保证每次重新循环的时候rects_final都是空的才行*/
 			continue;
-		} else if (1/*如果用颜色判断也成功的话就是这个地方,否则继续判断*/) {
-			;
 		}
 
+		/*能执行到这一步说明这肯定是只有一个矩形的*/
 
 		/*注意rects有头结点,所以传进去的时候忽略掉头结点*/
-		draw_contour_rect(img_after_preprocess, rects_final->next);
 	}
 		return rects_final->next;
 #endif

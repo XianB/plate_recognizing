@@ -40,5 +40,11 @@ int count_node(List L)
 
 bool is_empty(List L)
 {
+	return (L->next == NULL);
+}
 
+/*清空一个链表*/
+void empty_list(List L)
+{
+	L->next = NULL;
 }

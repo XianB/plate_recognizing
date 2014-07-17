@@ -52,7 +52,8 @@ void preprocess_car_img(IplImage * img_car)
 	/*三:滤波*/
 	cvSmooth(img_after_stre, img_after_filter, CV_GAUSSIAN);
 	/*四:边缘检测*/
-	cvCanny(img_after_filter, img_after_sobel, 50, 150, 3);	/*比用sobel函数好,因为这个不会分方向,把所有的边缘都画了出来了*/
+	//cvCanny(img_after_filter, img_after_sobel, 50, 150, 3);	/*比用sobel函数好,因为这个不会分方向,把所有的边缘都画了出来了*/
+	cvSobel(img_after_stre, img_after_sobel, 1, 0, 3);
 	/*五:二值化*/
 	cvThreshold(img_after_sobel, img_final, 0, 255, CV_THRESH_BINARY| CV_THRESH_OTSU);
 
