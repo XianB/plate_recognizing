@@ -1,4 +1,5 @@
 #include "include/plate.h"
+#define COUNT_NUMBER 16
 
 /*
 功能:通过像素点匹配进行数字的识别
@@ -16,12 +17,12 @@ int character_recognizing(IplImage * img_char)
 	IplImage * template_img_after_resize;
 	IplImage * img_char_after_resize;
 
-	int diff[] = {0,0,0,0,0,0,0,0,0,0};
+	int diff[COUNT_NUMBER] = {0,0,0,0,0,0,0,0,0,0};
 //	cvNamedWindow("character_recgnizing");
 	int i = 0;
 	int number = -1;
 
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < COUNT_NUMBER; i++) {
 		sprintf(filename, "../image/test_img/number/%d.png", i);
 		template_img = cvLoadImage(filename, -1);
 		if (template_img == NULL) {
@@ -39,9 +40,9 @@ int character_recognizing(IplImage * img_char)
 
 	}
 
-	number = find_min(diff, 10);
+	number = find_min(diff, COUNT_NUMBER);
 
-	for (i = 0; i < 10; i++) {
+	for (i = 0; i < COUNT_NUMBER; i++) {
 		printf("number %d: diff: %d\n", i, diff[i]);
 	}
 	printf("the number is : %d\n", number);

@@ -1,4 +1,4 @@
-#include "../include/plate.h"
+#include "../../include/plate.h"
 #include <assert.h>
 
 /*功能:对标准字符找到外接矩形的图像,并且进行二值化,为接下来的像素匹配做好准备
@@ -41,7 +41,10 @@ void template_character(IplImage * img, char * filename)
 	cvSetImageROI(img_final, rects_final->next->item);
 	IplImage * number = cvCreateImage(cvSize(rects_final->next->item.width, rects_final->next->item.height), img_final->depth, img_final->nChannels);
 	cvCopy(img_final, number);
-	cvSaveImage(filename, number);
+	char file[30];
+	sprintf(file, "%c.png", filename[35]);
+	printf("%s\n", file);
+	cvSaveImage(file, number);
 }
 
 

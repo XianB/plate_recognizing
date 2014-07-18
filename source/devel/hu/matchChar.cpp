@@ -1,7 +1,5 @@
 // matchChar.cpp : Defines the entry point for the console application.
 //
-
-#include "stdafx.h"
 #include "highgui.h"
 #include "cv.h"
 #include "cxcore.h"
@@ -67,29 +65,35 @@ int main(int argc, char* argv[])
 
 	
 	//加载图像1
-	IplImage* src1 = cvLoadImage("./images/2.png",CV_LOAD_IMAGE_GRAYSCALE);
+	IplImage* src1 = cvLoadImage(argv[1],CV_LOAD_IMAGE_GRAYSCALE);
+	IplImage * src2;
+	int i = 0;
+	char file[100];
+	double result;
 	
 	//获取图像1的轮廓
 	CvSeq* contour1;
+	CvSeq* contour2;
 	contour1 = getImageContour(src1);
 
 
 
 	//加载图像2
-	IplImage* src2 = cvLoadImage("./images/3.png",CV_LOAD_IMAGE_GRAYSCALE);
+	for (i = 0; i < 10; i++) {
+		sprintf(file, "%d.png", i);
+	src2 = cvLoadImage(file,CV_LOAD_IMAGE_GRAYSCALE);
 	
 	//获取图像2的轮廓
-	CvSeq* contour2;
 	contour2 = getImageContour(src2);
 
 
 	//进行比对
-	double result;
 
 	result = cvMatchShapes(contour1,contour2,1);
 
 	//输出结果
-	printf("result is %f \n",result);
+	printf("number %d: result is %f \n",i, result);
+	}
 
 
 

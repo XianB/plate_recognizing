@@ -1,7 +1,6 @@
 // contourMatch.cpp : Defines the entry point for the console application.
 //
 
-#include "stdafx.h"
 #include "cv.h"
 #include "highgui.h"
 #include "cxcore.h"
