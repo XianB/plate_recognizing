@@ -4,6 +4,7 @@
 #include <assert.h>
 
 
+void histogram_analysing(CvHistogram *hist, int bins);
     //绘制直方图
     IplImage* DrawHistogram(CvHistogram* hist , float scaleX = 1 , float scaleY = 1)
     {
@@ -89,6 +90,7 @@ int main(int argc, char* argv[])
             //将图像src  分解成B   G   R 三个通道
             cvSplit(src , img_h , img_s , img_v , NULL);
 
+#if 0
             //计算B通道 直方图
             cvCalcHist(&img_v , hist , 0 , 0 );
 
@@ -107,35 +109,37 @@ int main(int argc, char* argv[])
 
             //将G通道的直方图数据清空
             cvClearHist(hist);
+#endif
 
             //计算R通道 直方图
             cvCalcHist(&img_h , hist , 0 , 0 );
 
             //绘制R通道直方图  hist_h
             IplImage* hist_h = DrawHistogram(hist);
+			histogram_analysing(hist, 180);
 
             //将R通道的直方图数据清空
             cvClearHist(hist);
 
-            cvNamedWindow("v");
-            cvNamedWindow("s");
+      //      cvNamedWindow("v");
+     //       cvNamedWindow("s");
             cvNamedWindow("h");
 
-           cvShowImage("v"  , hist_v);
-            cvShowImage("s"  , hist_s);
+       //    cvShowImage("v"  , hist_v);
+        //    cvShowImage("s"  , hist_s);
             cvShowImage("h"  , hist_h);
 
 			char filename_h[20];
-			char filename_s[20];
-			char filename_v[20];
+//			char filename_s[20];
+//			char filename_v[20];
 
 			sprintf(filename_h, "%c_h.bmp", argv[1][24]);
-			sprintf(filename_s, "%c_s.bmp", argv[1][24]);
-			sprintf(filename_v, "%c_v.bmp", argv[1][24]);
+	//		sprintf(filename_s, "%c_s.bmp", argv[1][24]);
+	//		sprintf(filename_v, "%c_v.bmp", argv[1][24]);
 
 			cvSaveImage(filename_h, hist_h);
-			cvSaveImage(filename_s, hist_s);
-			cvSaveImage(filename_v, hist_v);
+//			cvSaveImage(filename_s, hist_s);
+//			cvSaveImage(filename_v, hist_v);
 
             cvWaitKey(0);
 
@@ -151,8 +155,8 @@ int main(int argc, char* argv[])
             cvReleaseImage(&img_v);
 
             //(3)释放三个通道直方图
-            cvReleaseImage(&hist_v);
-            cvReleaseImage(&hist_s);
+            //cvReleaseImage(&hist_v);
+            //cvReleaseImage(&hist_s);
             cvReleaseImage(&hist_h);
 
             //(4)释放直方图空间
@@ -160,3 +164,22 @@ int main(int argc, char* argv[])
 
             return 0;
     }
+
+void histogram_analysing(CvHistogram *hist, int bins)
+{
+	int i = 0;
+	int sum = 0;
+	int *ar = (int *)malloc(sizeof(int) * (bins + 1));
+	for (i = 0; i < bins; i++) {
+		float histValue = cvQueryHistValue_1D(hist , i);
+		ar[i] = (int)histValue;
+		sum += ar[i];
+		printf("%d\n", ar[i]);
+	}
+
+	for (i = 0; i < bins; i++) {
+		printf("bin %d: %.2lf%%\n", i, 1.0 * ar[i] / sum);
+	}
+}
+
+

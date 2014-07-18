@@ -19,7 +19,7 @@ int main(int argc, char *argv [])
 	int number = -1;	/*最后一个字符的数字结果*/
 
 #if 1
-	cvNamedWindow("img_car", 1);
+	//cvNamedWindow("img_car", 1);
 //	cvNamedWindow("img_car_after_resize", 1);
 	//cvNamedWindow("img_after_preprocess", 1);
 	//cvNamedWindow("img_plate", 1);
@@ -83,12 +83,12 @@ int main(int argc, char *argv [])
 
 #if 1
 	/*显示预处理完成后的图像*/
-	cvShowImage("img_car", img_after_preprocess);
+	//cvShowImage("img_car", img_after_preprocess);
 	//cvShowImage("img_after_preprocess", img_after_preprocess);
 #endif
 	
 	/***************************************预处理完成,开始找车牌位置*****************************************************************/
-	rects = get_location(img_after_preprocess);			/*得到车牌的位置,起初设计阶段是可以有多个预选位置,但是后来发现不用,所以rects其实只有一个位置,但是也是用一个链表装着的*/
+	rects = get_location(img_after_preprocess, img_car_after_resize);			/*得到车牌的位置,起初设计阶段是可以有多个预选位置,但是后来发现不用,所以rects其实只有一个位置,但是也是用一个链表装着的*/
 	/*由于在get_location中返回的是头结点的next节点,所以这里的参数不用rects->next*/
 	assert(count_node(rects) == 1);						/*断言这个链表里只有一个待选车牌位置*/
 	/****************************************找到车牌位置,开始截取车牌******************************************************************/
@@ -123,6 +123,7 @@ int main(int argc, char *argv [])
 	number = character_recognizing(last_character);
 
 	cvWaitKey(0);
+	printf("Time used = %.2f\n", (double)clock() / CLOCKS_PER_SEC);
 	return 0;
 }
 
@@ -137,9 +138,11 @@ static void cut_image(IplImage * img_car)
 	cvResetImageROI(img_car);
 	assert(img_car != NULL);
 
+#if 0
 	cvNamedWindow("haha", 1);
 	cvShowImage("haha", tmp_img);
 	cvWaitKey(0);
+#endif
 
 }
 
