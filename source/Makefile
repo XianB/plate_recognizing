@@ -28,4 +28,6 @@ clean:
 clean_image:
 	rm *.bmp
 
+clean_obj:
+	rm *.o 
 

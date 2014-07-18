@@ -1,7 +1,10 @@
 #include "include/plate.h"
 
+#if 0
 static void get_image_max_min_value(IplImage * img, int * max, int * min);
 static void gray_strecth(IplImage * src_img, IplImage* dst_img, int exp_max, int exp_min);
+#endif
+
 static void dilate_erode_x(IplImage * img_after_threshold, IplImage * img_final); 
 static void dilate_erode_y(IplImage * img_final); 
 /*功能:对车牌图像进行预处理,一遍后续的字符操作
@@ -113,6 +116,8 @@ void preprocess_plate_image(IplImage * img_plate)
 
 }
 
+#if 0
+/*用不着了*/
 /*灰度拉伸函数
  参数:源图像,目标图像,最大值,最小值*/
 void gray_strecth(IplImage * src_img, IplImage* dst_img, int exp_max, int exp_min)
@@ -191,4 +196,4 @@ void dilate_erode_y(IplImage * img_final) {
 }
 
 
-
+#endif

@@ -27,4 +27,24 @@ void push_back(List L, CvRect i)
 	tmp->next = NULL;
 }
 
+int count_node(List L)
+{
+	int count = 0;
+	while (L != NULL) {
+		count++;
+		L = L->next;
+	}
 
+	return count;
+}
+
+bool is_empty(List L)
+{
+	return (L->next == NULL);
+}
+
+/*清空一个链表*/
+void empty_list(List L)
+{
+	L->next = NULL;
+}
