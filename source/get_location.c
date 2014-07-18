@@ -47,6 +47,7 @@ List get_location(IplImage * img_car, IplImage * org_img_car)
 	 争取一次定位成功,并且只定位一个位置,不要预选位置
 	 */
 
+		dilate_erode_y(img_after_preprocess);
 	while (rects_final->next == NULL) {
 		/*主要问题是,如何在第一次就确定那个车牌的位置?*/
 		static int count = 0;
@@ -54,7 +55,6 @@ List get_location(IplImage * img_car, IplImage * org_img_car)
 		assert(count < 10);
 		/*重点改进之处,膨胀和腐蚀的次数是很关键的*/
 		dilate_erode_x(img_after_preprocess, img_after_preprocess);
-		dilate_erode_y(img_after_preprocess);
 
 		/*找到所有的矩形轮廓*/
 		get_contour_rect(img_after_preprocess, rects, storage, contours);/*没什么可以改进的地方*/
@@ -155,16 +155,16 @@ void filter_rect(List src_rects, List dst_rects, IplImage * org_img_car)
 void dilate_erode_x(IplImage * img_after_threshold, IplImage * img_final) {
 	/*自定义1*3的核进行X方向的膨胀腐蚀*/
 	IplConvKernel* kernal = cvCreateStructuringElementEx(3,1, 1, 0, CV_SHAPE_RECT);
-	cvDilate(img_after_threshold, img_final, kernal, 2);/*X方向膨胀连通数字*/
+	cvDilate(img_after_threshold, img_final, kernal, 1);/*X方向膨胀连通数字*/
 	cvErode(img_final, img_final, kernal, 1);/*X方向腐蚀去除碎片*/
-	cvDilate(img_final, img_final, kernal, 3);/*X方向膨胀回复形态*/
+	cvDilate(img_final, img_final, kernal, 2);/*X方向膨胀回复形态*/
 }
 
 void dilate_erode_y(IplImage * img_final) {
 	/*自定义3*1的核进行Y方向的膨胀腐蚀*/
 	IplConvKernel* kernal = cvCreateStructuringElementEx(1, 3, 0, 1, CV_SHAPE_RECT);
 	cvErode(img_final, img_final, kernal, 1);/*Y方向腐蚀去除碎片*/
-	cvDilate(img_final, img_final, kernal, 2);/*回复形态*/
+//	cvDilate(img_final, img_final, kernal, 1);/*回复形态*/
 }
 
 
