@@ -11,12 +11,14 @@ int main(int argc, char *argv [])
 	IplImage * img_after_preprocess = NULL;
 	IplImage * img_plate = NULL;
 	IplImage * img_after_resize = NULL;
-	IplImage * last_character = NULL;
+	IplImage * img_character = NULL;
 
 	List rects; /*保存预选车牌位置矩形的列表*/
 	double scale = -1; /*在尺寸归一化时要用到*/
 	int width = 0, height = 0; /*最开始时候的尺寸归一化的长宽*/
 	int number = -1;	/*最后一个字符的数字结果*/
+	int count_recog = 0;
+	char filename[50];
 
 #if 1
 	//cvNamedWindow("img_car", 1);
@@ -111,16 +113,23 @@ int main(int argc, char *argv [])
 	preprocess_plate_image(img_after_resize);			/*对车牌图像进行预处理*/
 	
 	/********************************************获得车牌上的字符信息**************************************************************/
-	get_character(img_after_resize);					/*获得最后一个字符的图像*/
+	get_character(img_after_resize);					/*得到每一个字符的图像*/
+	while (count_recog < 7) {
 
-	last_character = cvLoadImage("last_character.bmp", -1);
-	if (last_character == NULL) {
-		fprintf(stderr, "Can not open last character image!\n");
-		exit(-1);
-	}
+		sprintf(filename, "character%d.png", count_recog);
+
+		img_character = cvLoadImage(filename, -1);
+
+		if (img_character == NULL) {
+			fprintf(stderr, "Can not open last character image!\n");
+			exit(-1);
+		}
 
 	/*********************************************开始进行字符识别***********************************************************/
-	number = character_recognizing(last_character);
+
+		number = character_recognizing(img_character);
+		count_recog++;
+	}
 
 	cvWaitKey(0);
 	printf("Time used = %.2f\n", (double)clock() / CLOCKS_PER_SEC);
