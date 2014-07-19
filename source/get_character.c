@@ -3,7 +3,7 @@
 /*
 	功能是获得最后一个车牌字符
  */
-static void find_last_character(IplImage * img, List rects);
+static void find_character(IplImage * img, List rects);
 static void filter_rect_by_area(List src_rects, List dst_rects, int total_area);
 
 void get_character(IplImage * img) 
@@ -36,7 +36,7 @@ void get_character(IplImage * img)
 	get_contour_rect(img_after_removed, rects, storage, contours);		/*找到所有矩形*/
 	filter_rect_by_area(rects->next, rects_final, img_after_removed->width * img_after_removed->height);
 	draw_contour_rect(img_after_removed, rects_final->next);
-	find_last_character(img_after_removed, rects_final->next);			/*也没有什么好改进的地方了*/
+	find_character(img_after_removed, rects_final->next);			/*也没有什么好改进的地方了*/
 }
 
 /*消除上下边界*/
@@ -148,38 +148,47 @@ void filter_rect_by_area(List src_rects, List dst_rects, int total_area)
   参数:去除边界后的车牌图片,得到的矩形框列表
   思想:过找到rects中的各个矩形中左上角坐标最靠右边的那个矩形即可
  */
-void find_last_character(IplImage * img, List rects)
+void find_character(IplImage * img, List rects)
 {
 	if (rects == NULL) {
-		fprintf(stderr, "rects is NULL in find_last_character function.\n");
+		fprintf(stderr, "rects is NULL in find_rects->item_character function.\n");
 		exit(-1);
 	}
-	cvNamedWindow("last_character", 1);
+//	cvNamedWindow("character", 1);
 	int max = -1;
-	CvRect last = cvRect(-1, -1, -1, -1);
-	IplImage * last_character;
+	int count = 0;
+	char filename[50];
+
+	CvRect crect = cvRect(-1, -1, -1, -1);
+	IplImage * img_character;
 
 	/*遍历链表寻找x坐标最大的矩形*/
 	while (rects != NULL) {
+#if 0
 		if(rects->item.x > max) {
 			max = rects->item.x;
-			last = rects->item;
+			rects->item = rects->item;
 		}
 //		printf("in find rects character %d %d %d %d \n", rects->item.x, rects->item.y, rects->item.x + rects->item.width, rects->item.y + rects->item.height);
 		rects = rects->next;
 
+#endif
+		assert(rects->item.x > 0 && rects->item.y > 0 && rects->item.width > 0 && rects->item.height > 0);
+
+	//printf("in find rects->item character %d %d %d %d \n", rects->item.x, rects->item.y, rects->item.x + rects->item.width, rects->item.y + rects->item.height);
+	//printf("in find rects->item character %d %d %d %d \n", 0, 0, img->width, img->height);
+		cvSetImageROI(img, rects->item);
+		img_character = cvCreateImage(cvSize(rects->item.width, rects->item.height), img->depth, img->nChannels);
+		printf("setROI in find_rects->item_character success\n");
+
+		sprintf(filename, "character%d.png", count);
+		cvCopy(img, img_character, 0);
+		cvSaveImage(filename, img_character);
+//		cvShowImage("character", img_character);
+//		cvWaitKey(0);
+		rects = rects->next;
+		count++;
 	}
-	assert(last.x > 0 && last.y > 0 && last.width > 0 && last.height > 0);
-
-	//printf("in find last character %d %d %d %d \n", last.x, last.y, last.x + last.width, last.y + last.height);
-	//printf("in find last character %d %d %d %d \n", 0, 0, img->width, img->height);
-	cvSetImageROI(img, last);
-	last_character = cvCreateImage(cvSize(last.width, last.height), img->depth, img->nChannels);
-	printf("setROI in find_last_character success\n");
-
-	cvCopy(img, last_character, 0);
-	cvSaveImage("last_character.bmp", last_character);
-	cvShowImage("last_character", last_character);
 }
 
 

@@ -1,9 +1,11 @@
 #include "include/plate.h"
 #define COUNT_NUMBER 16
+#define WIDTH_RESIZE 50
+#define HEIGHT_RESIZE 100
 
 /*
 功能:通过像素点匹配进行数字的识别
-输入:两张规格化为40*80像素点的图片,
+输入:两张规格化为WIDTH_RESIZE*HEIGHT_RESIZE像素点的图片,
 思路:一张是待识别的,十张是标准图片,进行匹配,匹配最相近的为数字
  */
 
@@ -12,6 +14,9 @@ static int compare_diff(IplImage *template_img, IplImage *char_img);
 
 int character_recognizing(IplImage * img_char)
 {
+	cvNamedWindow("char", 1);
+	cvShowImage("char", img_char);
+	cvWaitKey(0);
 	char filename[100];
 	IplImage * template_img;
 	IplImage * template_img_after_resize;
@@ -30,11 +35,11 @@ int character_recognizing(IplImage * img_char)
 			exit(-1);
 		}
 		/*对模版图片进行尺寸归一化*/
-		template_img_after_resize = cvCreateImage(cvSize(40, 80), template_img->depth, template_img->nChannels);
+		template_img_after_resize = cvCreateImage(cvSize(WIDTH_RESIZE, HEIGHT_RESIZE), template_img->depth, template_img->nChannels);
 		cvResize(template_img, template_img_after_resize);
 		/*对待识别图片进行尺寸归一化*/
 
-		img_char_after_resize = cvCreateImage(cvSize(40, 80), template_img->depth, template_img->nChannels);
+		img_char_after_resize = cvCreateImage(cvSize(WIDTH_RESIZE, HEIGHT_RESIZE), template_img->depth, template_img->nChannels);
 		cvResize(img_char, img_char_after_resize);
 		diff[i] = compare_diff(template_img_after_resize, img_char_after_resize);
 
