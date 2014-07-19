@@ -5,6 +5,7 @@
  */
 static void find_character(IplImage * img, List rects);
 static void filter_rect_by_area(List src_rects, List dst_rects, int total_area);
+static void sort(List L);
 
 void get_character(IplImage * img) 
 {
@@ -158,6 +159,8 @@ void find_character(IplImage * img, List rects)
 	int max = -1;
 	int count = 0;
 	char filename[50];
+	/*先对字符链表按左上角坐标排序*/
+//	sort(rects);
 
 	CvRect crect = cvRect(-1, -1, -1, -1);
 	IplImage * img_character;
@@ -192,7 +195,14 @@ void find_character(IplImage * img, List rects)
 }
 
 
+#if 0
+/*按矩形左上角x坐标排序*/
+void sort(List L)
+{
+	
+}
 
+#endif
 
 
 

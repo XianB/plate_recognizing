@@ -27,6 +27,7 @@ void push_back(List L, CvRect i)
 	tmp->next = NULL;
 }
 
+/*连头结点也算在内了*/
 int count_node(List L)
 {
 	int count = 0;
