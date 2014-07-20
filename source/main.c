@@ -114,6 +114,7 @@ int main(int argc, char *argv [])
 	
 	/********************************************获得车牌上的字符信息**************************************************************/
 	get_character(img_after_resize);					/*得到每一个字符的图像*/
+	printf("the plate is: \n");
 	while (count_recog < 7) {
 
 		sprintf(filename, "character%d.png", count_recog);
