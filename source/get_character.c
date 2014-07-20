@@ -6,6 +6,8 @@
 static void find_character(IplImage * img, List rects);
 static void filter_rect_by_area(List src_rects, List dst_rects, int total_area);
 
+//void make_border_black(IplImage *img);
+
 void get_character(IplImage * img) 
 {
 	img = cvLoadImage("img_plate_after_preprocess.bmp", -1);
@@ -130,12 +132,14 @@ void filter_rect_by_area(List src_rects, List dst_rects, int total_area)
 		exit(-1);
 	}
 	while (src_rects != NULL) {
-		double scale = 1.0 * (src_rects->item.width) / (src_rects->item.height);
-		double area_of_rect = 1.0 * (src_rects->item.width) * (src_rects->item.height);
+
+		double scale = 1.0 *(src_rects->item.height) / (src_rects->item.width);  
+		int area_of_rect = (src_rects->item.width) * (src_rects->item.height);
 
 	//	printf("in find rects character %d %d %d %d \n", src_rects->item.x, src_rects->item.y, src_rects->item.x + src_rects->item.width, src_rects->item.y + src_rects->item.height);
 		/*车牌有固定的形状比例以及大小比例,先按这个粗略提取出车牌位置*/
-		if (area_of_rect > (total_area / 15)) {
+		if (area_of_rect > (total_area / 15) || (scale > 5 && area_of_rect > (total_area / 60))) {
+			printf("area %d\n", area_of_rect);
 			push_back(dst_rects, src_rects->item);
 			dst_rects = dst_rects->next;
 		}
@@ -197,6 +201,25 @@ void find_character(IplImage * img, List rects)
 }
 
 
+
+/*由于检测不到1的轮廓,我觉得是因为1上下都挨着边界了,所以我要手动把上下两行设成黑色的*/
+
+#if 0
+void make_border_black(IplImage *img)
+{
+	int j = 0;
+	unsigned char * prow = (unsigned char * )(img->imageData + 0 * img->widthStep);
+
+	for (j = 0; j < img->width; j++) {
+		prow[j] = 0;
+	}
+	prow = (unsigned char * )(img->imageData + (img->height - 1) * img->widthStep);
+	for (j = 0; j < img->width; j++) {
+		prow[j] = 0;
+	}
+
+}
+#endif
 
 
 

@@ -1,0 +1,23 @@
+1.png  width: 283 height: 89 scale: 3.179775
+2.png  width: 324 height: 96 scale: 3.375000
+3.png  width: 362 height: 103 scale: 3.514563
+4.png  width: 126 height: 39 scale: 3.230769
+5.png  width: 169 height: 56 scale: 3.017857
+6.png  width: 230 height: 66 scale: 3.484848
+7.png  width: 180 height: 58 scale: 3.103448
+8.png  width: 183 height: 52 scale: 3.519231
+9.png  width: 115 height: 38 scale: 3.026316
+10.png  width: 117 height: 34 scale: 3.441176
+11.png  width: 226 height: 64 scale: 3.531250
+12.png  width: 140 height: 40 scale: 3.500000
+13.png  width: 139 height: 41 scale: 3.390244
+14.png  width: 132 height: 41 scale: 3.219512
+15.png  width: 196 height: 54 scale: 3.629630
+16.png  width: 190 height: 55 scale: 3.454545
+17.png  width: 175 height: 52 scale: 3.365385
+18.png  width: 145 height: 46 scale: 3.152174
+19.png  width: 148 height: 41 scale: 3.609756
+20.png  width: 196 height: 59 scale: 3.322034
+
+
+avg width: 188, avg 56, avg scale: 3.359431

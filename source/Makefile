@@ -26,7 +26,7 @@ clean:
 	rm *.o plate *.bmp *.png
 
 clean_image:
-	rm *.bmp
+	rm *.bmp *.png
 
 clean_obj:
 	rm *.o 

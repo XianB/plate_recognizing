@@ -135,7 +135,7 @@ void filter_rect(List src_rects, List dst_rects, IplImage * org_img_car)
 		/*车牌有固定的形状比例以及大小比例,先按这个粗略提取出车牌位置*/
 		if (scale <= SCALE_MAX && scale >= SCALE_MIN && area_of_rect <= AREA_MAX && area_of_rect >= AREA_MIN ) {
 			draw_rect(org_img_car, src_rects->item);
-		printf("%d area is %d\n",i, area_of_rect);
+		printf("%d area is %d scale is :%lf\n",i, area_of_rect, 1.0 * src_rects->item.width / src_rects->item.height);
 
 			if (identity_by_color(org_img_car, src_rects->item)) {
 				push_back(dst_rects, src_rects->item);
@@ -155,9 +155,9 @@ void filter_rect(List src_rects, List dst_rects, IplImage * org_img_car)
 void dilate_erode_x(IplImage * img_after_threshold, IplImage * img_final) {
 	/*自定义1*3的核进行X方向的膨胀腐蚀*/
 	IplConvKernel* kernal = cvCreateStructuringElementEx(3,1, 1, 0, CV_SHAPE_RECT);
-	cvDilate(img_after_threshold, img_final, kernal, 1);/*X方向膨胀连通数字*/
+	cvDilate(img_after_threshold, img_final, kernal, 3);/*X方向膨胀连通数字*/
 	cvErode(img_final, img_final, kernal, 1);/*X方向腐蚀去除碎片*/
-	cvDilate(img_final, img_final, kernal, 2);/*X方向膨胀回复形态*/
+	cvDilate(img_final, img_final, kernal, 3);/*X方向膨胀回复形态*/
 }
 
 void dilate_erode_y(IplImage * img_final) {

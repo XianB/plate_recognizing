@@ -9,8 +9,8 @@
 #include <stdbool.h>
 #include <time.h>
 
-#define SCALE_MAX 4.5
-#define SCALE_MIN 2.5
+#define SCALE_MAX 4.2
+#define SCALE_MIN 2.8
 #define AREA_MAX 28000
 #define AREA_MIN 7000
 #define FILENAME_LEN 50
