@@ -5,7 +5,6 @@
  */
 static void find_character(IplImage * img, List rects);
 static void filter_rect_by_area(List src_rects, List dst_rects, int total_area);
-static void sort(List L);
 
 void get_character(IplImage * img) 
 {
@@ -37,7 +36,7 @@ void get_character(IplImage * img)
 	get_contour_rect(img_after_removed, rects, storage, contours);		/*找到所有矩形*/
 	filter_rect_by_area(rects->next, rects_final, img_after_removed->width * img_after_removed->height);
 	draw_contour_rect(img_after_removed, rects_final->next);
-	find_character(img_after_removed, rects_final->next);			/*也没有什么好改进的地方了*/
+	find_character(img_after_removed, rects_final);			/*也没有什么好改进的地方了*/
 }
 
 /*消除上下边界*/
@@ -160,7 +159,10 @@ void find_character(IplImage * img, List rects)
 	int count = 0;
 	char filename[50];
 	/*先对字符链表按左上角坐标排序*/
-//	sort(rects);
+	/*rects是带头结点的*/
+	printf("here!\n");
+	rects = sort(rects);
+	rects = rects->next; /*保证没有头结点参与计算*/
 
 	CvRect crect = cvRect(-1, -1, -1, -1);
 	IplImage * img_character;
@@ -195,14 +197,6 @@ void find_character(IplImage * img, List rects)
 }
 
 
-#if 0
-/*按矩形左上角x坐标排序*/
-void sort(List L)
-{
-	
-}
-
-#endif
 
 
 

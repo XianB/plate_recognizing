@@ -9,6 +9,11 @@
 思路:一张是待识别的,十张是标准图片,进行匹配,匹配最相近的为数字
  */
 
+char * chinese[31] = {
+	"陕", 
+	"鲁",
+};
+
 static int find_min(int diff[], int size);
 static int compare_diff(IplImage *template_img, IplImage *char_img);
 
@@ -62,9 +67,10 @@ int character_recognizing(IplImage * img_char)
 	}
 	if (number < 10) {
 		printf("the number is : %d\n", number);
-	} else {
+	} else if (number < 36){
 		printf("the character is : %c\n", number + 55);
-	}
+	} if ( number >= 36)
+		printf("the chinese is :%s\n", chinese[number - 36]);
 	return number;
 }
 
