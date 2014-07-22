@@ -104,9 +104,9 @@ void remove_border_ul(IplImage * img_plate)
 			}
 		}
 
-		if (black_to_white >= 4 && white_to_black >= 4 && low_bound < 0) {
+		if (black_to_white >= 6 && white_to_black >= 6 && low_bound < 0) {
 			low_bound = i;
-		} else if (black_to_white < 4 && white_to_black < 4 && low_bound > 0) {
+		} else if (black_to_white < 6 && white_to_black < 6 && low_bound > 0) {
 			low_bound = -1;
 		}
 	
@@ -127,7 +127,9 @@ void remove_border_ul(IplImage * img_plate)
 	/*这里容易出错!*/
 
 //printf("%d %d %d %d", 0, up_bound, img_plate->width - 2, low_bound - up_bound - 2);
-	assert(low_bound > 0 && up_bound >0);
+	printf("low_bound:%d up_bound:%d\n", low_bound, up_bound);
+
+	assert(low_bound >= 0 && up_bound >= 0);
 	cvSetImageROI(img_plate, cvRect(0, up_bound, img_plate->width - 2, low_bound - up_bound - 2));		/*-2保证不要越界*/
 	IplImage * tmp_img = cvCreateImage(cvSize(img_plate->width - 2, low_bound - up_bound - 2), img_plate->depth, img_plate->nChannels);
 	cvCopy(img_plate, tmp_img);

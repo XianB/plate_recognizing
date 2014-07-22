@@ -25,7 +25,7 @@ void get_plate_image(IplImage * src_img, List  rects)
 		cvSaveImage(filename, plate_img);
 		rect_count++;
 		cvResetImageROI(src_img);
-		printf("set roi in get_plate_image success");
+		printf("set roi in get_plate_image success\n");
 		rects = rects->next;
 
 		/*控制不能让车牌数量太多了*/

@@ -1,1 +1,1 @@
-g++ `pkg-config opencv --cflags` histogram_test1.c `pkg-config opencv --libs` -fpermissive
+g++ `pkg-config opencv --cflags` edge.c `pkg-config opencv --libs` -fpermissive

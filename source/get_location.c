@@ -262,7 +262,7 @@ bool histogram_analysing(CvHistogram *hist, int bins)
 
 		printf("bin0: %lf\n", bin0);
 
-	if (bin0 > 0.75)
+	if (bin0 > BIN_MIN)
 		return true;
 	else 
 		return false;

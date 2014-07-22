@@ -1,5 +1,6 @@
 #include "include/plate.h"
 
+//#define LN
 
 static void cut_image(IplImage * img); 
 static double plate_resize_scale(IplImage * img_plate);
@@ -143,12 +144,23 @@ int main(int argc, char *argv [])
 
 static void cut_image(IplImage * img_car) 
 {
+#ifndef LN
 	IplImage * tmp_img = cvCreateImage(cvSize(1.0 / 3 * img_car->width, 1.0 / 2 * img_car->height), img_car->depth, img_car->nChannels);
 	cvSetImageROI(img_car, cvRect(1.0 / 3 * img_car->width, 1.0 / 4 * img_car->height, 1.0 / 3 * img_car->width, 1.0 / 2 * img_car->height));
 	cvCopy(img_car, tmp_img);
 	cvSaveImage("tmp_img.bmp", tmp_img);
 	cvResetImageROI(img_car);
 	assert(img_car != NULL);
+#endif
+
+#ifdef LN
+	IplImage * tmp_img = cvCreateImage(cvSize(1.0 / 2 * img_car->width, 1.0 / 1 * img_car->height), img_car->depth, img_car->nChannels);
+	cvSetImageROI(img_car, cvRect(1.0 / 4 * img_car->width, 0 / 1 * img_car->height, 1.0 / 2 * img_car->width, 1.0 / 1 * img_car->height));
+	cvCopy(img_car, tmp_img);
+	cvSaveImage("tmp_img.bmp", tmp_img);
+	cvResetImageROI(img_car);
+	assert(img_car != NULL);
+#endif
 
 #if 0
 	cvNamedWindow("haha", 1);

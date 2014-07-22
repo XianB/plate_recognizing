@@ -15,6 +15,8 @@
 #define AREA_MIN 7000
 #define FILENAME_LEN 50
 
+#define BIN_MIN 0.75
+
 /*接下来这几个宏定义是在车牌的左右去边框的时候用到的*/
 #define RESIZED_HEIGHT 200
 #define AREA_MIN_1 1700

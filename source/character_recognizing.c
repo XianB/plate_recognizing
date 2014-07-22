@@ -69,8 +69,9 @@ int character_recognizing(IplImage * img_char)
 		printf("the number is : %d\n", number);
 	} else if (number < 36){
 		printf("the character is : %c\n", number + 55);
-	} if ( number >= 36)
+	} if ( number >= 36) {
 		printf("the chinese is :%s\n", chinese[number - 36]);
+	}
 	return number;
 }
 
