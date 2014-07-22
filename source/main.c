@@ -1,6 +1,8 @@
 #include "include/plate.h"
 
+
 static void cut_image(IplImage * img); 
+static double plate_resize_scale(IplImage * img_plate);
 
 int main(int argc, char *argv [])
 {
@@ -103,7 +105,8 @@ int main(int argc, char *argv [])
 	}
 
 	/*******************************************对车牌进行尺寸变化***************************************************************/
-	resize_image(img_plate,img_after_resize, 3);		/*最后一个参数为5表示将原车牌图像变长为原来的五倍*/
+	scale = plate_resize_scale(img_plate);
+	resize_image(img_plate,img_after_resize, scale);		/*最后一个参数为5表示将原车牌图像变长为原来的五倍*/
 	if ((img_after_resize = cvLoadImage("plate_img_after_resize.bmp", -1)) == NULL) {
 		fprintf(stderr, "Can not open file plate_img_after_resize.bmp in main.c");
 		exit(-1);
@@ -115,15 +118,14 @@ int main(int argc, char *argv [])
 	/********************************************获得车牌上的字符信息**************************************************************/
 	get_character(img_after_resize);					/*得到每一个字符的图像*/
 	printf("the plate is: \n");
-	while (count_recog < 7) {
+	while (1) {
 
 		sprintf(filename, "character%d.png", count_recog);
 
 		img_character = cvLoadImage(filename, -1);
 
 		if (img_character == NULL) {
-			fprintf(stderr, "Can not open last character image!\n");
-			exit(-1);
+			break;
 		}
 
 	/*********************************************开始进行字符识别***********************************************************/
@@ -157,6 +159,10 @@ static void cut_image(IplImage * img_car)
 }
 
 
+static double plate_resize_scale(IplImage * img_plate)
+{
+	return 1.0 * RESIZED_HEIGHT / img_plate->height;
+}
 
 
 

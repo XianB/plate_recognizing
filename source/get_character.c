@@ -1,12 +1,15 @@
 #include "include/plate.h"
+#define PERCENT 0.8
 
 /*
 	功能是获得最后一个车牌字符
  */
 static void find_character(IplImage * img, List rects);
 static void filter_rect_by_area(List src_rects, List dst_rects, int total_area);
+/*去除最左最右的可能是边框的矩形*/
+static void filter_rect_lr(List rects, IplImage * img_plate);
 
-//void make_border_black(IplImage *img);
+void make_border_black(IplImage *img);
 
 void get_character(IplImage * img) 
 {
@@ -35,8 +38,17 @@ void get_character(IplImage * img)
 		exit(-1);
 	}
 
+	make_border_black(img_after_removed);
 	get_contour_rect(img_after_removed, rects, storage, contours);		/*找到所有矩形*/
 	filter_rect_by_area(rects->next, rects_final, img_after_removed->width * img_after_removed->height);
+	/*现在还要继续去除左右边界:
+	 左右边界的特点是:
+	 1.几乎全为白色点,注意1也是这样
+	 2.面积不在1的范围之内,1的最大最小值定义在头文件中了
+	 3.比例比1的大或小,比例也定义在头文件中了
+	 */
+	rects_final = sort(rects_final);
+	filter_rect_lr(rects_final, img_after_removed);
 	draw_contour_rect(img_after_removed, rects_final->next);
 	find_character(img_after_removed, rects_final);			/*也没有什么好改进的地方了*/
 }
@@ -154,6 +166,7 @@ void filter_rect_by_area(List src_rects, List dst_rects, int total_area)
  */
 void find_character(IplImage * img, List rects)
 {
+	rects = rects->next;
 	if (rects == NULL) {
 		fprintf(stderr, "rects is NULL in find_rects->item_character function.\n");
 		exit(-1);
@@ -165,9 +178,6 @@ void find_character(IplImage * img, List rects)
 	/*先对字符链表按左上角坐标排序*/
 	/*rects是带头结点的*/
 	printf("here!\n");
-	rects = sort(rects);
-	rects = rects->next; /*保证没有头结点参与计算*/
-
 	CvRect crect = cvRect(-1, -1, -1, -1);
 	IplImage * img_character;
 
@@ -188,10 +198,11 @@ void find_character(IplImage * img, List rects)
 	//printf("in find rects->item character %d %d %d %d \n", 0, 0, img->width, img->height);
 		cvSetImageROI(img, rects->item);
 		img_character = cvCreateImage(cvSize(rects->item.width, rects->item.height), img->depth, img->nChannels);
-		printf("setROI in find_rects->item_character success\n");
+//		printf("setROI in find_rects->item_character success\n");
 
 		sprintf(filename, "character%d.png", count);
 		cvCopy(img, img_character, 0);
+		printf("area of character:%d scale:%lf\n", img_character->width * img_character->height, 1.0 * img_character->width / img_character->height);
 		cvSaveImage(filename, img_character);
 //		cvShowImage("character", img_character);
 //		cvWaitKey(0);
@@ -201,10 +212,67 @@ void find_character(IplImage * img, List rects)
 }
 
 
+/*输入:经过面积筛选的矩形
+ 输出:去除左右矩形的矩形链表
+ 筛选方法:
+ 1.里面的像素点几乎全是白的
+ 2.由于和1一样,所以面积要不在1的范围之内
+ 3.比例不能一样*/
+void filter_rect_lr(List rects, IplImage * img_plate)
+{
+	List head = rects;
+	IplImage *tmp = cvCloneImage(img_plate);
+	rects = rects->next;
+	int count_white = 0;	/*计算矩形内白点个数*/
+	int i = 0, j = 0;
+	int area = 0;
+	int width, height;
+	int x, y;
+	double scale = 0;
+	int count = 0;
+
+	while(rects != NULL) {
+		count_white = 0;
+
+		area = rects->item.width * rects->item.height;
+		scale = 1.0 * rects->item.width / rects->item.height;
+		width = rects->item.width;
+		height = rects->item.height;
+		x = rects->item.x;
+		y = rects->item.y;
+
+		printf("area: %d scale :%lf\n", area, scale);
+		cvRectangle(tmp, cvPoint(rects->item.x, rects->item.y), cvPoint(rects->item.x + rects->item.width, rects->item.y + rects->item.height), CV_RGB(0xbF, 0xbd, 0xab), 1, 8, 0);
+	
+		cvNamedWindow("tmp", 1);
+		cvShowImage("tmp", tmp);
+		cvWaitKey(0);
+
+		for (i = y; i < height + y; i++) {
+			unsigned char * prow = (unsigned char *)(img_plate->imageData + i * img_plate->widthStep);
+			for (j = x; j < width + x; j++) {
+				if (prow[j] == 255) {
+					count_white++;
+				}
+			}
+
+		}
+		printf("count_white: %d\n", count_white);
+
+		if ((1.0 * count_white / area > PERCENT) && (area > AREA_MAX_1 || area < AREA_MIN_1) && (scale > SCALE_MAX_1 || scale < SCALE_MIN_1) ) {
+			delete_node(head, rects->item);
+		}
+		if ((1.0 * count_white / area > PERCENT) && count == 0) {
+			delete_node(head, rects->item);
+		}
+		rects = rects->next;
+		count++;
+	}
+}
 
 /*由于检测不到1的轮廓,我觉得是因为1上下都挨着边界了,所以我要手动把上下两行设成黑色的*/
 
-#if 0
+#if 1
 void make_border_black(IplImage *img)
 {
 	int j = 0;
@@ -220,9 +288,6 @@ void make_border_black(IplImage *img)
 
 }
 #endif
-
-
-
 
 
 

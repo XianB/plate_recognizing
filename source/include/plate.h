@@ -15,6 +15,13 @@
 #define AREA_MIN 7000
 #define FILENAME_LEN 50
 
+/*接下来这几个宏定义是在车牌的左右去边框的时候用到的*/
+#define RESIZED_HEIGHT 200
+#define AREA_MIN_1 1700
+#define AREA_MAX_1 2700
+#define SCALE_MAX_1 0.17
+#define SCALE_MIN_1 0.1
+
 void preprocess_car_img(IplImage * car_img);
 List get_location(IplImage * img_car, IplImage * org_img_car);
 void get_plate_image(IplImage * img_car, List rects);

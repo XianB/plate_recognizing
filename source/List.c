@@ -1,6 +1,7 @@
 #include "include/List.h"
 
-static void delete_node(List L, CvRect item);
+/*需要头结点*/
+void delete_node(List L, CvRect item);
 
 static List find_min(List L);
 
@@ -97,10 +98,12 @@ List find_min(List L)
 	return min_node;
 }
 
+/*头结点一起传进来才行*/
 void delete_node(List L, CvRect item)
 {
 	if (L == NULL)
 		return;
+
 	while (L->next != NULL) {
 		if (L->next->item.x == item.x) {
 			L->next = L->next->next;
