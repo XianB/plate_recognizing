@@ -4,4 +4,7 @@ main
 a.out
 source/*.bmp
 image/phone
+source/*.png
+image/ln2/*
+
 
