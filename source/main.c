@@ -1,6 +1,9 @@
 #include "include/plate.h"
 
+//#define LN
+
 static void cut_image(IplImage * img); 
+static double plate_resize_scale(IplImage * img_plate);
 
 int main(int argc, char *argv [])
 {
@@ -11,12 +14,14 @@ int main(int argc, char *argv [])
 	IplImage * img_after_preprocess = NULL;
 	IplImage * img_plate = NULL;
 	IplImage * img_after_resize = NULL;
-	IplImage * last_character = NULL;
+	IplImage * img_character = NULL;
 
 	List rects; /*保存预选车牌位置矩形的列表*/
 	double scale = -1; /*在尺寸归一化时要用到*/
 	int width = 0, height = 0; /*最开始时候的尺寸归一化的长宽*/
 	int number = -1;	/*最后一个字符的数字结果*/
+	int count_recog = 0;
+	char filename[50];
 
 #if 1
 	//cvNamedWindow("img_car", 1);
@@ -101,7 +106,8 @@ int main(int argc, char *argv [])
 	}
 
 	/*******************************************对车牌进行尺寸变化***************************************************************/
-	resize_image(img_plate,img_after_resize, 3);		/*最后一个参数为5表示将原车牌图像变长为原来的五倍*/
+	scale = plate_resize_scale(img_plate);
+	resize_image(img_plate,img_after_resize, scale);		/*最后一个参数为5表示将原车牌图像变长为原来的五倍*/
 	if ((img_after_resize = cvLoadImage("plate_img_after_resize.bmp", -1)) == NULL) {
 		fprintf(stderr, "Can not open file plate_img_after_resize.bmp in main.c");
 		exit(-1);
@@ -111,16 +117,23 @@ int main(int argc, char *argv [])
 	preprocess_plate_image(img_after_resize);			/*对车牌图像进行预处理*/
 	
 	/********************************************获得车牌上的字符信息**************************************************************/
-	get_character(img_after_resize);					/*获得最后一个字符的图像*/
+	get_character(img_after_resize);					/*得到每一个字符的图像*/
+	//printf("the plate is: \n");
+	while (1) {
 
-	last_character = cvLoadImage("last_character.bmp", -1);
-	if (last_character == NULL) {
-		fprintf(stderr, "Can not open last character image!\n");
-		exit(-1);
-	}
+		sprintf(filename, "character%d.png", count_recog);
+
+		img_character = cvLoadImage(filename, -1);
+
+		if (img_character == NULL) {
+			break;
+		}
 
 	/*********************************************开始进行字符识别***********************************************************/
-	number = character_recognizing(last_character);
+
+		number = character_recognizing(img_character);
+		count_recog++;
+	}
 
 	cvWaitKey(0);
 	printf("Time used = %.2f\n", (double)clock() / CLOCKS_PER_SEC);
@@ -131,12 +144,23 @@ int main(int argc, char *argv [])
 
 static void cut_image(IplImage * img_car) 
 {
+#ifndef LN
 	IplImage * tmp_img = cvCreateImage(cvSize(1.0 / 3 * img_car->width, 1.0 / 2 * img_car->height), img_car->depth, img_car->nChannels);
 	cvSetImageROI(img_car, cvRect(1.0 / 3 * img_car->width, 1.0 / 4 * img_car->height, 1.0 / 3 * img_car->width, 1.0 / 2 * img_car->height));
 	cvCopy(img_car, tmp_img);
 	cvSaveImage("tmp_img.bmp", tmp_img);
 	cvResetImageROI(img_car);
 	assert(img_car != NULL);
+#endif
+
+#ifdef LN
+	IplImage * tmp_img = cvCreateImage(cvSize(1.0 / 2 * img_car->width, 1.0 / 1 * img_car->height), img_car->depth, img_car->nChannels);
+	cvSetImageROI(img_car, cvRect(1.0 / 4 * img_car->width, 0 / 1 * img_car->height, 1.0 / 2 * img_car->width, 1.0 / 1 * img_car->height));
+	cvCopy(img_car, tmp_img);
+	cvSaveImage("tmp_img.bmp", tmp_img);
+	cvResetImageROI(img_car);
+	assert(img_car != NULL);
+#endif
 
 #if 0
 	cvNamedWindow("haha", 1);
@@ -147,6 +171,10 @@ static void cut_image(IplImage * img_car)
 }
 
 
+static double plate_resize_scale(IplImage * img_plate)
+{
+	return 1.0 * RESIZED_HEIGHT / img_plate->height;
+}
 
 
 

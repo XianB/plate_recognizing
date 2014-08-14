@@ -1,0 +1,2 @@
+get_character.c:	printf("setROI in remove bound success\n");
+get_character.c:		printf("setROI in find_rects->item_character success\n");

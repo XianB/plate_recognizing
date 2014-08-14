@@ -32,7 +32,7 @@ void draw_contour_rect(IplImage * src_img, List rects)
 	}
 
 	IplImage * temp_img = cvCreateImage(cvGetSize(src_img), IPL_DEPTH_8U, 1);
-	cvNamedWindow("img_with_rect");
+//	cvNamedWindow("img_with_rect");
 
 	temp_img = cvCloneImage(src_img);
 	if (temp_img == NULL) {
@@ -43,15 +43,15 @@ void draw_contour_rect(IplImage * src_img, List rects)
 		cvRectangle(temp_img, cvPoint(rects->item.x, rects->item.y), cvPoint(rects->item.x + rects->item.width, rects->item.y + rects->item.height), CV_RGB(0xbF, 0xbd, 0xab), 1, 8, 0);
 		rects = rects->next;
 	}
-	cvShowImage("img_with_rect", temp_img);
-	cvWaitKey(0);
+//	cvShowImage("img_with_rect", temp_img);
+//	cvWaitKey(0);
 }
 
 
 /*打印出矩形的面积*/
 void print_area_of_rect(CvRect rect)
 {
-	printf("the area of this rect is %d\n", rect.width * rect.height);
+	//printf("the area of this rect is %d\n", rect.width * rect.height);
 }
 
 
