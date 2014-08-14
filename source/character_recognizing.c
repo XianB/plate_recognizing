@@ -19,9 +19,9 @@ static int compare_diff(IplImage *template_img, IplImage *char_img);
 
 int character_recognizing(IplImage * img_char)
 {
-	cvNamedWindow("char", 1);
-	cvShowImage("char", img_char);
-	cvWaitKey(0);
+//	cvNamedWindow("char", 1);
+//	cvShowImage("char", img_char);
+//	cvWaitKey(0);
 	char filename[100];
 	IplImage * template_img;
 	IplImage * template_img_after_resize;

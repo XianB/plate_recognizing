@@ -72,8 +72,8 @@ List get_location(IplImage * img_car, IplImage * org_img_car)
 
 #if 1
 		/*用来逐步显示如果一次没找到候选位置时的操作*/
-		cvShowImage("tmp_img", img_after_preprocess);
-		cvWaitKey(0);
+//		cvShowImage("tmp_img", img_after_preprocess);
+//		cvWaitKey(0);
 #endif
 
 		/*如果不为一个矩形就继续循环,膨胀腐蚀*/
@@ -135,7 +135,7 @@ void filter_rect(List src_rects, List dst_rects, IplImage * org_img_car)
 		/*车牌有固定的形状比例以及大小比例,先按这个粗略提取出车牌位置*/
 		if (scale <= SCALE_MAX && scale >= SCALE_MIN && area_of_rect <= AREA_MAX && area_of_rect >= AREA_MIN ) {
 			draw_rect(org_img_car, src_rects->item);
-		printf("%d area is %d scale is :%lf\n",i, area_of_rect, 1.0 * src_rects->item.width / src_rects->item.height);
+		//printf("%d area is %d scale is :%lf\n",i, area_of_rect, 1.0 * src_rects->item.width / src_rects->item.height);
 
 			if (identity_by_color(org_img_car, src_rects->item)) {
 				push_back(dst_rects, src_rects->item);
@@ -208,10 +208,10 @@ bool identity_by_color(IplImage * img, CvRect rects)
 
 	if (histogram_analysing(hist,10) == true) {
 		return true;
-		printf("It must be a plate!\n");
+		//printf("It must be a plate!\n");
 	} else {
 		return false;
-		printf("I don't think it is a plate\n");
+	//	printf("I don't think it is a plate\n");
 	}
 
 #if 0
@@ -260,7 +260,7 @@ bool histogram_analysing(CvHistogram *hist, int bins)
 		bin0 = 1.0 * ar[0] / sum;
 		bin1 = 1.0 * ar[1] / sum;
 
-		printf("bin0: %lf\n", bin0);
+		//printf("bin0: %lf\n", bin0);
 
 	if (bin0 > BIN_MIN)
 		return true;
@@ -274,9 +274,9 @@ void draw_rect(IplImage * img, CvRect rect)
 {
 	IplImage *tmp_img = cvCloneImage(img);
 	cvRectangle(tmp_img, cvPoint(rect.x, rect.y), cvPoint(rect.x + rect.width, rect.y + rect.height), CV_RGB(0xbf, 0xbd, 0xab), 2, 8, 0);
-	cvNamedWindow("get_location", 1);
-	cvShowImage("get_location", tmp_img);
-	cvWaitKey(0);
+//	cvNamedWindow("get_location", 1);
+//	cvShowImage("get_location", tmp_img);
+//	cvWaitKey(0);
 }
 
 #endif

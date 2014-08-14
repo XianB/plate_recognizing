@@ -62,9 +62,9 @@ void remove_border_ul(IplImage * img_plate)
 	int white_to_black = 0;
 	int black_to_white = 0;
 	/*从i从0 到高度一半进行遍历,进行投影,找到上边界*/
-	cvNamedWindow("img_plate", 1);
-	cvShowImage("img_plate", img_plate);
-	cvWaitKey(0);
+	//cvNamedWindow("img_plate", 1);
+	//cvShowImage("img_plate", img_plate);
+	//cvWaitKey(0);
 	for (i = 0; i < (img_plate->height) / 2; i = i + 3) {
 
 		unsigned char * prow = (unsigned char *)(img_plate->imageData + i * img_plate->widthStep);
@@ -127,7 +127,7 @@ void remove_border_ul(IplImage * img_plate)
 	/*这里容易出错!*/
 
 //printf("%d %d %d %d", 0, up_bound, img_plate->width - 2, low_bound - up_bound - 2);
-	printf("low_bound:%d up_bound:%d\n", low_bound, up_bound);
+//	printf("low_bound:%d up_bound:%d\n", low_bound, up_bound);
 
 	assert(low_bound >= 0 && up_bound >= 0);
 	cvSetImageROI(img_plate, cvRect(0, up_bound, img_plate->width - 2, low_bound - up_bound - 2));		/*-2保证不要越界*/
@@ -135,7 +135,7 @@ void remove_border_ul(IplImage * img_plate)
 	cvCopy(img_plate, tmp_img);
 	cvSaveImage("img_after_border_removed.bmp", tmp_img);
 	cvResetImageROI(img_plate);
-	printf("setROI in remove bound success\n");
+//	printf("setROI in remove bound success\n");
 }
 
 /*通过大小比例筛选出满足形状比例的矩形*/
@@ -153,7 +153,7 @@ void filter_rect_by_area(List src_rects, List dst_rects, int total_area)
 	//	printf("in find rects character %d %d %d %d \n", src_rects->item.x, src_rects->item.y, src_rects->item.x + src_rects->item.width, src_rects->item.y + src_rects->item.height);
 		/*车牌有固定的形状比例以及大小比例,先按这个粗略提取出车牌位置*/
 		if (area_of_rect > (total_area / 15) || (scale > 5 && area_of_rect > (total_area / 60))) {
-			printf("area %d\n", area_of_rect);
+//			printf("area %d\n", area_of_rect);
 			push_back(dst_rects, src_rects->item);
 			dst_rects = dst_rects->next;
 		}
@@ -179,7 +179,7 @@ void find_character(IplImage * img, List rects)
 	char filename[50];
 	/*先对字符链表按左上角坐标排序*/
 	/*rects是带头结点的*/
-	printf("here!\n");
+//	printf("here!\n");
 	CvRect crect = cvRect(-1, -1, -1, -1);
 	IplImage * img_character;
 
@@ -204,7 +204,7 @@ void find_character(IplImage * img, List rects)
 
 		sprintf(filename, "character%d.png", count);
 		cvCopy(img, img_character, 0);
-		printf("area of character:%d scale:%lf\n", img_character->width * img_character->height, 1.0 * img_character->width / img_character->height);
+//		printf("area of character:%d scale:%lf\n", img_character->width * img_character->height, 1.0 * img_character->width / img_character->height);
 		cvSaveImage(filename, img_character);
 //		cvShowImage("character", img_character);
 //		cvWaitKey(0);
@@ -243,12 +243,12 @@ void filter_rect_lr(List rects, IplImage * img_plate)
 		x = rects->item.x;
 		y = rects->item.y;
 
-		printf("area: %d scale :%lf\n", area, scale);
+//		printf("area: %d scale :%lf\n", area, scale);
 		cvRectangle(tmp, cvPoint(rects->item.x, rects->item.y), cvPoint(rects->item.x + rects->item.width, rects->item.y + rects->item.height), CV_RGB(0xbF, 0xbd, 0xab), 1, 8, 0);
 	
-		cvNamedWindow("tmp", 1);
-		cvShowImage("tmp", tmp);
-		cvWaitKey(0);
+		//cvNamedWindow("tmp", 1);
+		//cvShowImage("tmp", tmp);
+		//cvWaitKey(0);
 
 		for (i = y; i < height + y; i++) {
 			unsigned char * prow = (unsigned char *)(img_plate->imageData + i * img_plate->widthStep);
@@ -259,7 +259,7 @@ void filter_rect_lr(List rects, IplImage * img_plate)
 			}
 
 		}
-		printf("count_white: %d\n", count_white);
+	//	printf("count_white: %d\n", count_white);
 
 		if ((1.0 * count_white / area > PERCENT) && (area > AREA_MAX_1 || area < AREA_MIN_1) && (scale > SCALE_MAX_1 || scale < SCALE_MIN_1) ) {
 			delete_node(head, rects->item);
